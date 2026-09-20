@@ -12,15 +12,16 @@ advantage of a non-Gaussian photonic circuit over a resource-matched Gaussian on
 ## Status
 
 The simulation core is built and validated against closed forms. The resource-decay
-study, the optimized Gaussian baseline and two operational task scores are complete.
-The depth sweep and the collapse surfaces are in progress.
+study, optimized Gaussian baseline, two operational task scores, and Kerr depth sweep
+are complete. Experiment 02 includes discrete `(D, eta)` maps and a bound that excludes
+later revivals. Resource placement and thermal-noise surfaces remain future work.
 
 | | |
 | --- | --- |
-| Test suite | 351 passing |
+| Test suite | 387 passing |
 | Validation vs. closed form | max error 2.8 × 10⁻⁵ |
 | Backends | pure-NumPy reference + Piquasso 8.0.1, cross-validated |
-| Scope | 1–4 modes, mixed-state Fock representation |
+| Scope | single-mode results; 1–4 modes planned, mixed-state Fock representation |
 
 The V1 prototype at the repository root (`noise_collapse_study.py`,
 `experimental_analysis.py`, `mrmustard_integration.py`) uses an assumed exponential decay
@@ -29,7 +30,9 @@ claims come from the V2 package in `src/ngphotonic/`. See [PROJECT_SUMMARY.md](P
 
 ## Approach
 
-Three quantities are measured separately rather than assumed to track each other:
+The project distinguishes three quantities rather than assuming they track each other.
+Current experiments measure the first two; classical simulation difficulty remains a
+planned axis:
 
 ```
 resource survival  !=  task usefulness  !=  classical simulation difficulty
@@ -110,8 +113,8 @@ baseline construction:
 | Fock \|2> | **+0.62** | **−47.98** |
 | cat α=1.5 | **+0.25** | **−49.43** |
 
-The sign flips for every resource, at every noise level, and the ordering is not even
-reversed consistently — Fock \|2> is best at preparation and worst at phase estimation.
+The sign flips for every resource, at every sampled noise level. Fock \|2> is best at
+preparation, yet provides no phase information.
 The mechanism is exact rather than numerical: `exp(-i θ n) |n><n| exp(i θ n) = |n><n|`,
 so a Fock state carries no phase information under *any* measurement and its Fisher
 information is identically zero. The resource that wins preparation most decisively is
@@ -122,14 +125,48 @@ The optimized baseline for this task has a closed form. For squeezed vacuum
 recovers exactly 16.0000 at `n̄ = 1` and 47.98 against 48 at `n̄ = 2`, with the optimum
 at pure squeezing and no displacement.
 
-So "operational usefulness" is not one axis. A resource measure that ranks these three
-resources tells you nothing about either task.
+So "operational usefulness" is not one axis. The negativity ranking does not
+consistently predict performance across these two tasks.
 
 **Noise axes are resource-specific.** Phase diffusion acts as
 `rho_mn -> rho_mn exp(-sigma^2 (m-n)^2 / 2)`, so a Fock state is a fixed point at any
 `sigma`, while cat-state fringes are removed. It also commutes exactly with pure loss, so
 a layered circuit of those two alone reduces to a single `(eta^D, sigma sqrt(D))` channel
 — depth becomes an independent axis only once a non-commuting element is present.
+
+**Kerr depth collapse.** Experiment 02 starts with squeezed vacuum (`r = 0.6`) and
+repeats `Kerr(0.2) -> loss(eta) -> dephasing(sigma)`. Both arms are scored against
+the same noiseless output for each depth. The baseline optimizes a pure displaced
+squeezed input with matched energy and identical noise exposures; all active Gaussian
+preparation is at the input, with no intermediate pumping. This is a defined circuit
+family, not an optimization over every possible noisy Gaussian circuit.
+
+At `epsilon = 0.01`, the D* estimates are:
+
+| per-layer `eta` | loss only | with per-layer `sigma = 0.1` |
+| --- | --- | --- |
+| 0.80 | 2 | 2 |
+| 0.90 | 6 | 6 |
+| 0.95 | 14 | 10 |
+
+At `eta = 0.95` without dephasing, viable depths are **1–3, 5–7, 9–10, and 14**:
+stopping at the first crossing would report 3 instead of 14. The sweep checks every
+integer depth through 44, 93, and 189 respectively, where the bound
+`A(D) <= 2 sqrt(n0 eta^D)` rules out all subsequent revivals. These are estimates
+against the best Gaussian baseline found; the tail certificate does not prove that
+the earlier baseline optima are global.
+
+![Kerr depth sweep and discrete collapse maps](figures/02_depth_collapse.png)
+
+A second control holds total loss, phase variance, Kerr strength, input energy and
+target fixed while changing the layer count. The output changes, reaching a trace
+distance of **0.0382** from the lumped channel: depth is affecting the ordering of
+operations, even at fixed total resource and noise budgets.
+
+The [experiment protocol](experiments/02_depth_collapse/README.md) and
+[tracked numerical report](experiments/02_depth_collapse/report.json) include the
+dephasing cases, epsilon sensitivity, optimizer diagnostics, and cutoff/grid checks.
+The [release review](RELEASE_REVIEW.md) distinguishes current evidence from planned extensions.
 
 ## Numerical caveats quantified
 
@@ -144,7 +181,7 @@ a layered circuit of those two alone reduces to a single `(eta^D, sigma sqrt(D))
   agree to 1e-17 while both differ from the converged result by 9.6e-05, identically —
   they exponentiate the same truncated `x^3`. Only cutoff convergence is informative there.
 
-Both are asserted by tests.
+These effects are asserted by tests.
 
 ## Install and run
 
@@ -155,6 +192,8 @@ pip install -e ".[sim]"   # adds the Piquasso backend
 pytest tests/ -q
 python experiments/00_validation/run_validation.py
 python experiments/01_loss_threshold/run.py
+python experiments/02_depth_collapse/run.py --publish
+python experiments/02_depth_collapse/controls.py
 python experiments/05_gaussian_baseline/run.py
 python experiments/06_phase_estimation/run.py    # ~10 min
 ```
@@ -166,7 +205,7 @@ Piquasso tests skip automatically if the `sim` extra is absent.
 ```
 src/ngphotonic/     backends, noise channels, metrics, circuits, analysis
 experiments/        reproducible runs; each writes JSON + a figure
-tests/              351 tests, closed-form and cross-backend
+tests/              closed-form, circuit-depth and cross-backend checks
 docs/               project page (GitHub Pages)
 figures/            curated figures referenced by the docs
 results/            raw per-run output (gitignored)

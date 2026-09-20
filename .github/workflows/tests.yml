@@ -46,6 +46,9 @@ jobs:
         # physics is caught rather than only a regression in the tests.
         run: python experiments/00_validation/run_validation.py
 
+      - name: Kerr depth experiment smoke test
+        run: python experiments/02_depth_collapse/run.py --smoke
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4

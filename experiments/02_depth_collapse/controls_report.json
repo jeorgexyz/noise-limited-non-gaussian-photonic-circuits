@@ -1,0 +1,328 @@
+{
+  "configuration": {
+    "cutoff": 32,
+    "squeezing": 0.6,
+    "kerr_xi": 0.2,
+    "epsilon": 0.01,
+    "grid_limit": 6.0,
+    "grid_points": 161,
+    "extra_starts": 3,
+    "seed": 0
+  },
+  "control": {
+    "total_parameters": {
+      "eta": 0.5,
+      "sigma_phi": 0.2,
+      "kerr_xi": 1.2
+    },
+    "rows": [
+      {
+        "depth": 1,
+        "s_ng": 0.8400642216032667,
+        "s_gaussian": 0.8385009659715914,
+        "advantage": 0.0015632556316752533,
+        "s_lumped": 0.8400642216032667,
+        "lumped_trace_distance": 2.8226693883001607e-18,
+        "n_bar": 0.20266388574356026,
+        "purity": 0.8116338611843327,
+        "trace_error": 6.661338392074888e-16,
+        "minimum_eigenvalue": 0.0,
+        "baseline_n_bar_input": 0.4053277714871205,
+        "baseline_energy_error": 1.2175066899100528e-08,
+        "baseline_tail": 9.68954289503024e-10,
+        "baseline_params": {
+          "alpha_re": 0.0,
+          "alpha_im": 0.0,
+          "r": 0.6,
+          "phi": -1.5606636793493527
+        },
+        "baseline_n_starts": 8,
+        "baseline_scores_by_start": [
+          0.7584770616061994,
+          0.8385009659715913,
+          0.8385009659715911,
+          0.8385009659715913,
+          0.7584770616061995,
+          0.8385009659715914,
+          0.8385009659715909,
+          0.8385009659715912
+        ],
+        "baseline_converged_fraction": 0.75,
+        "baseline_score_spread": 1.1102230246251565e-16,
+        "baseline_witness_score": 0.7627094260582181,
+        "baseline_witness_used": false,
+        "vacuum_advantage_bound": 0.9003641304074562,
+        "w_log": 0.0,
+        "wigner_diagnostics": {
+          "norm": 0.9999999992486935,
+          "norm_error": 7.513064614883547e-10,
+          "edge_mass": 3.234444186776469e-10,
+          "min_value": 3.797707016171083e-18
+        },
+        "layer": {
+          "eta": 0.5,
+          "sigma_phi": 0.2,
+          "kerr_xi": 1.2
+        }
+      },
+      {
+        "depth": 2,
+        "s_ng": 0.8493285835872942,
+        "s_gaussian": 0.8385009659715915,
+        "advantage": 0.010827617615702723,
+        "s_lumped": 0.8400642216032665,
+        "lumped_trace_distance": 0.03801057594161571,
+        "n_bar": 0.20266388574356026,
+        "purity": 0.820169945368019,
+        "trace_error": 8.88179251562548e-16,
+        "minimum_eigenvalue": 0.0,
+        "baseline_n_bar_input": 0.4053277714871205,
+        "baseline_energy_error": 1.2175066899100528e-08,
+        "baseline_tail": 9.68954289503027e-10,
+        "baseline_params": {
+          "alpha_re": 0.0,
+          "alpha_im": 0.0,
+          "r": 0.6,
+          "phi": -1.5606636714637783
+        },
+        "baseline_n_starts": 8,
+        "baseline_scores_by_start": [
+          0.7584770616061993,
+          0.8385009659715913,
+          0.8385009659715909,
+          0.8385009659715915,
+          0.7584770616061995,
+          0.8385009659715913,
+          0.8385009659715907,
+          0.8385009659715913
+        ],
+        "baseline_converged_fraction": 0.75,
+        "baseline_score_spread": 2.220446049250313e-16,
+        "baseline_witness_score": 0.7627094260582181,
+        "baseline_witness_used": false,
+        "vacuum_advantage_bound": 0.9003641304074563,
+        "w_log": 0.00042606193725163696,
+        "wigner_diagnostics": {
+          "norm": 0.9999999975214864,
+          "norm_error": 2.478513616566147e-09,
+          "edge_mass": 1.4107265788638362e-09,
+          "min_value": -0.0014022992215794931
+        },
+        "layer": {
+          "eta": 0.7071067811865476,
+          "sigma_phi": 0.1414213562373095,
+          "kerr_xi": 0.6
+        }
+      },
+      {
+        "depth": 4,
+        "s_ng": 0.8486911006427271,
+        "s_gaussian": 0.8385009659715912,
+        "advantage": 0.010190134671135942,
+        "s_lumped": 0.8400642216032665,
+        "lumped_trace_distance": 0.038188328589668544,
+        "n_bar": 0.20266388574356015,
+        "purity": 0.819123447739867,
+        "trace_error": 4.440894334094017e-16,
+        "minimum_eigenvalue": 0.0,
+        "baseline_n_bar_input": 0.4053277714871206,
+        "baseline_energy_error": 1.2175066788078226e-08,
+        "baseline_tail": 9.68954289503028e-10,
+        "baseline_params": {
+          "alpha_re": 0.0,
+          "alpha_im": 0.0,
+          "r": 0.6,
+          "phi": -1.5606637015641724
+        },
+        "baseline_n_starts": 8,
+        "baseline_scores_by_start": [
+          0.758477061606199,
+          0.8385009659715912,
+          0.838500965971591,
+          0.8385009659715912,
+          0.7584770616061995,
+          0.8385009659715912,
+          0.8385009659715909,
+          0.8385009659715912
+        ],
+        "baseline_converged_fraction": 0.75,
+        "baseline_score_spread": 0.0,
+        "baseline_witness_score": 0.7627094260582181,
+        "baseline_witness_used": false,
+        "vacuum_advantage_bound": 0.9003641304074561,
+        "w_log": 0.0012282044620068964,
+        "wigner_diagnostics": {
+          "norm": 0.9999999975567979,
+          "norm_error": 2.443202085089524e-09,
+          "edge_mass": 1.3941170855038412e-09,
+          "min_value": -0.002452474334439325
+        },
+        "layer": {
+          "eta": 0.8408964152537145,
+          "sigma_phi": 0.1,
+          "kerr_xi": 0.3
+        }
+      },
+      {
+        "depth": 8,
+        "s_ng": 0.8478873346655685,
+        "s_gaussian": 0.8385009659715913,
+        "advantage": 0.009386368693977243,
+        "s_lumped": 0.8400642216032667,
+        "lumped_trace_distance": 0.03823389083262223,
+        "n_bar": 0.20266388574356017,
+        "purity": 0.8184649069487082,
+        "trace_error": 2.222464573209803e-16,
+        "minimum_eigenvalue": 0.0,
+        "baseline_n_bar_input": 0.4053277714871204,
+        "baseline_energy_error": 1.2175067010122831e-08,
+        "baseline_tail": 9.68954289503022e-10,
+        "baseline_params": {
+          "alpha_re": 0.0,
+          "alpha_im": 0.0,
+          "r": 0.6,
+          "phi": -1.5606636831689662
+        },
+        "baseline_n_starts": 8,
+        "baseline_scores_by_start": [
+          0.758477061606199,
+          0.8385009659715912,
+          0.8385009659715911,
+          0.8385009659715913,
+          0.7584770616061994,
+          0.8385009659715912,
+          0.8385009659715909,
+          0.8385009659715911
+        ],
+        "baseline_converged_fraction": 0.75,
+        "baseline_score_spread": 1.1102230246251565e-16,
+        "baseline_witness_score": 0.7627094260582181,
+        "baseline_witness_used": false,
+        "vacuum_advantage_bound": 0.9003641304074561,
+        "w_log": 0.001263150948279945,
+        "wigner_diagnostics": {
+          "norm": 0.9999999975276083,
+          "norm_error": 2.4723917357860614e-09,
+          "edge_mass": 1.4149646537061776e-09,
+          "min_value": -0.002452541524758565
+        },
+        "layer": {
+          "eta": 0.9170040432046712,
+          "sigma_phi": 0.07071067811865475,
+          "kerr_xi": 0.15
+        }
+      },
+      {
+        "depth": 16,
+        "s_ng": 0.8475859627822341,
+        "s_gaussian": 0.8385009659715913,
+        "advantage": 0.009084996810642787,
+        "s_lumped": 0.8400642216032665,
+        "lumped_trace_distance": 0.038202214557067016,
+        "n_bar": 0.20266388574356015,
+        "purity": 0.8182091741813206,
+        "trace_error": 2.220484089638605e-16,
+        "minimum_eigenvalue": 0.0,
+        "baseline_n_bar_input": 0.4053277714871204,
+        "baseline_energy_error": 1.2175067010122831e-08,
+        "baseline_tail": 9.689542895030259e-10,
+        "baseline_params": {
+          "alpha_re": 0.0,
+          "alpha_im": 0.0,
+          "r": 0.6,
+          "phi": -1.560663688838636
+        },
+        "baseline_n_starts": 8,
+        "baseline_scores_by_start": [
+          0.7584770616061993,
+          0.8385009659715911,
+          0.8385009659715913,
+          0.8385009659715913,
+          0.7584770616061992,
+          0.8385009659715912,
+          0.8385009659715911,
+          0.8385009659715912
+        ],
+        "baseline_converged_fraction": 0.75,
+        "baseline_score_spread": 0.0,
+        "baseline_witness_score": 0.7627094260582181,
+        "baseline_witness_used": false,
+        "vacuum_advantage_bound": 0.9003641304074566,
+        "w_log": 0.0012715932457695574,
+        "wigner_diagnostics": {
+          "norm": 0.999999997525026,
+          "norm_error": 2.474974003519037e-09,
+          "edge_mass": 1.4163336224250975e-09,
+          "min_value": -0.0024482878677575476
+        },
+        "layer": {
+          "eta": 0.9576032806985737,
+          "sigma_phi": 0.05,
+          "kerr_xi": 0.075
+        }
+      },
+      {
+        "depth": 32,
+        "s_ng": 0.8474646691079604,
+        "s_gaussian": 0.8385009659715913,
+        "advantage": 0.008963703136369072,
+        "s_lumped": 0.8400642216032664,
+        "lumped_trace_distance": 0.03818484800192422,
+        "n_bar": 0.20266388574355984,
+        "purity": 0.8181033003328398,
+        "trace_error": 6.661363816179615e-16,
+        "minimum_eigenvalue": 0.0,
+        "baseline_n_bar_input": 0.4053277714871204,
+        "baseline_energy_error": 1.2175067010122831e-08,
+        "baseline_tail": 9.689542895030234e-10,
+        "baseline_params": {
+          "alpha_re": 0.0,
+          "alpha_im": 0.0,
+          "r": 0.6,
+          "phi": -1.5606636801233384
+        },
+        "baseline_n_starts": 8,
+        "baseline_scores_by_start": [
+          0.758477061606199,
+          0.8385009659715912,
+          0.838500965971591,
+          0.8385009659715913,
+          0.7584770616061993,
+          0.8385009659715913,
+          0.838500965971591,
+          0.838500965971591
+        ],
+        "baseline_converged_fraction": 0.75,
+        "baseline_score_spread": 0.0,
+        "baseline_witness_score": 0.7627094260582182,
+        "baseline_witness_used": false,
+        "vacuum_advantage_bound": 0.9003641304074556,
+        "w_log": 0.001275592833317917,
+        "wigner_diagnostics": {
+          "norm": 0.9999999975249498,
+          "norm_error": 2.4750501648185264e-09,
+          "edge_mass": 1.416012484788413e-09,
+          "min_value": -0.0024475685312576787
+        },
+        "layer": {
+          "eta": 0.9785720620877001,
+          "sigma_phi": 0.035355339059327376,
+          "kerr_xi": 0.0375
+        }
+      }
+    ]
+  },
+  "protocol": "Fixed total Kerr, transmissivity, phase variance, input energy and pure target; only their subdivision into interleaved layers changes.",
+  "validation": {
+    "passed": true,
+    "higher_cutoff": 44,
+    "extra_starts": 11,
+    "seed": 1,
+    "max_errors": {
+      "s_ng": 6.385031392497353e-10,
+      "s_gaussian": 6.304284871916366e-10,
+      "advantage": 8.074652058098764e-12,
+      "lumped_trace_distance": 2.987753100480717e-11
+    }
+  }
+}

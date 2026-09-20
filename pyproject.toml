@@ -14,10 +14,10 @@ keywords = [
     "photonic-quantum-computing",
 ]
 
-# V1 prototype only needs the plotting/analysis stack. The Piquasso-backed
-# simulation lands in V2; see RESEARCH_PLAN.md.
+# The reference simulator and reproducible experiments use this core stack.
+# NumPy 2 supplies trapezoid(), used by the Wigner and homodyne integrals.
 dependencies = [
-    "numpy>=1.26",
+    "numpy>=2.0",
     "scipy>=1.11",
     "matplotlib>=3.8",
 ]

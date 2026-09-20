@@ -13,6 +13,17 @@ caveat recorded there: agreement is only evidence where the backends compute
 differently, which is not true of every gate.
 """
 
-from . import piquasso, reference
+from importlib import import_module
+
+from . import reference
 
 __all__ = ["reference", "piquasso"]
+
+
+def __getattr__(name: str):
+    # Reference sweeps must not initialize the optional backend or its JIT cache.
+    if name == "piquasso":
+        module = import_module(".piquasso", __name__)
+        globals()[name] = module
+        return module
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

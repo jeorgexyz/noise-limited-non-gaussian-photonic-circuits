@@ -115,6 +115,19 @@ def test_loss_composes_across_backends() -> None:
     )
 
 
+@pytest.mark.parametrize("depth", [2, 6, 12])
+def test_interleaved_kerr_loss_depth_agrees(depth: int) -> None:
+    from ngphotonic.circuits.templates import LayerSpec, run_layered
+
+    cutoff = 44
+    circuit = [pqb.vacuum(), pqb.squeezing(.6)]
+    circuit += [gate for _ in range(depth) for gate in (pqb.kerr(.2), pqb.loss(.9))]
+    simulated = pqb.run(circuit, cutoff=cutoff)
+    reference = run_layered(ref.to_dm(ref.squeezed_ket(.6, 0, cutoff)),
+                            LayerSpec(eta=.9, kerr_xi=.2), depth)
+    np.testing.assert_allclose(simulated, reference, atol=1e-10)
+
+
 # --------------------------------------------------------------------------------------
 # Correlated error: agreement here proves nothing
 # --------------------------------------------------------------------------------------

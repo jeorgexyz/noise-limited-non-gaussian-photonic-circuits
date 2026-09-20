@@ -1,0 +1,17 @@
+{
+  "cutoff": 32,
+  "squeezing": 0.6,
+  "kerr_xi": 0.2,
+  "epsilon": 0.01,
+  "grid_limit": 6.0,
+  "grid_points": 161,
+  "extra_starts": 3,
+  "seed": 0,
+  "etas": [0.8, 0.9, 0.95],
+  "sigmas": [0.0, 0.1],
+  "validation_cutoff": 44,
+  "validation_grid_points": 241,
+  "validation_grid_limit": 7.0,
+  "score_tolerance": 0.00001,
+  "wigner_tolerance": 0.0002
+}

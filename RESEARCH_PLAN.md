@@ -184,8 +184,13 @@ non-Gaussianity" collapse at different depths.
 2. ~~Non-Gaussian resource decay under pure loss~~ **done** -- experiment 01.
    Critical transmissivity per resource, reported with the survival threshold epsilon
    it depends on.
-3. Depth sweep, identify `D*`
-4. Collapse maps: `(D, eta)`, then `(D, eta, n_th)`
+3. ~~Depth sweep, identify `D*`~~ **done for a single-mode Kerr family** -- experiment 02.
+   Every integer depth is checked through an energy-bound horizon that excludes later
+   revivals. The matched baseline prepares a pure Gaussian input, with no intermediate
+   pumping; reported positive advantage remains conditional on numerical optimization.
+   A fixed-total Kerr/loss/dephasing control also isolates the layer-ordering effect.
+4. Collapse maps: **discrete `(D, eta)` maps done**, for phase diffusion 0 and 0.1 in
+   experiment 02. Denser parameter coverage and `(D, eta, n_th)` remain future work.
 5. Resource-strength sweep: cubic-phase `gamma`, Kerr `xi`, cat amplitude `alpha`, `r`
 6. Early vs. middle vs. late insertion of the non-Gaussian resource
 7. One strong non-Gaussian layer vs. several weak ones
@@ -193,6 +198,7 @@ non-Gaussianity" collapse at different depths.
    experiment 05. Energy-matched displaced-squeezed family, multi-start Nelder-Mead,
    validated against a brute-force grid. Taken out of order because it is what makes
    `A(D, nu)` well defined; the depth sweep (step 3) builds on it.
+   Experiment 06 completes the second operational task, phase estimation under homodyne.
 9. Optimize the non-Gaussian circuit for **robustness** rather than ideal performance
 10. Scale 1 -> 2 -> 3-4 modes
 

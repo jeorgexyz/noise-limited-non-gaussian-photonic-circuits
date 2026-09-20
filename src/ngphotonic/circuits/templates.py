@@ -48,23 +48,28 @@ class LayerSpec:
     """Phase-diffusion standard deviation, in radians."""
 
     kerr_xi: float = 0.0
-    """Kerr strength. Non-zero makes the layered circuit irreducible in depth."""
+    """Kerr strength; generally breaks reducibility when 0 < eta < 1."""
 
     def __post_init__(self) -> None:
         if not 0.0 <= self.eta <= 1.0:
             raise ValueError(f"eta must lie in [0, 1], got {self.eta}.")
-        if self.sigma_phi < 0.0:
+        if not np.isfinite(self.sigma_phi) or self.sigma_phi < 0.0:
             raise ValueError(f"sigma_phi must be non-negative, got {self.sigma_phi}.")
+        if not np.isfinite(self.kerr_xi):
+            raise ValueError("kerr_xi must be finite.")
 
 
 def is_reducible(spec: LayerSpec) -> bool:
     """True if a depth-``D`` chain of this layer collapses to a single channel.
 
-    That happens exactly when there is no Kerr term, because loss and phase diffusion
-    commute with each other and each composes with itself. A depth sweep over a
-    reducible layer measures nothing that a transmissivity sweep would not.
+    Kerr commutes with dephasing. With no loss it therefore accumulates into one gate;
+    complete loss resets to vacuum. At integer multiples of pi, exp(i xi n^2) is just
+    a phase rotation on integer Fock indices and also commutes with loss. Outside
+    these cases Kerr generally prevents reduction. A particular input (e.g. a Fock
+    state) may still be insensitive to Kerr even when the channel is irreducible.
     """
-    return spec.kerr_xi == 0.0
+    rotation = abs(np.remainder(spec.kerr_xi + np.pi / 2, np.pi) - np.pi / 2) < 1e-12
+    return spec.eta in (0.0, 1.0) or bool(rotation)
 
 
 def apply_layer(rho: np.ndarray, spec: LayerSpec) -> np.ndarray:
@@ -86,8 +91,7 @@ def run_layered(
     With ``record=True`` returns the state after every layer including the input, which
     is what the depth sweeps consume; the list has ``depth + 1`` entries.
     """
-    if depth < 0:
-        raise ValueError(f"depth must be non-negative, got {depth}.")
+    _check_depth(depth)
 
     trajectory = [np.asarray(rho, dtype=complex)]
     for _ in range(depth):
@@ -98,11 +102,11 @@ def run_layered(
 def collapsed_equivalent(spec: LayerSpec, depth: int) -> LayerSpec:
     """The single layer equivalent to ``depth`` repetitions of a reducible ``spec``.
 
-    Transmissivities multiply and phase variances add, so the equivalent layer is
-    ``(eta^D, sigma sqrt(D))``. Raises for an irreducible layer, where no single-layer
-    equivalent exists.
+    Transmissivities multiply, phase variances add, and any commuting Kerr strengths
+    add. Raises for an irreducible layer when depth exceeds one.
     """
-    if not is_reducible(spec):
+    _check_depth(depth)
+    if depth > 1 and not is_reducible(spec):
         raise ValueError(
             f"Layer with kerr_xi={spec.kerr_xi} is irreducible: Kerr does not commute "
             f"with loss, so no single-layer equivalent exists. This is the regime where "
@@ -111,5 +115,10 @@ def collapsed_equivalent(spec: LayerSpec, depth: int) -> LayerSpec:
     return LayerSpec(
         eta=spec.eta**depth,
         sigma_phi=spec.sigma_phi * np.sqrt(depth),
-        kerr_xi=0.0,
+        kerr_xi=spec.kerr_xi * depth,
     )
+
+
+def _check_depth(depth: int) -> None:
+    if isinstance(depth, bool) or not isinstance(depth, (int, np.integer)) or depth < 0:
+        raise ValueError(f"depth must be a non-negative integer, got {depth}.")
