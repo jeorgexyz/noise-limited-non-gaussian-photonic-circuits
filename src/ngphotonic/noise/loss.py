@@ -21,8 +21,7 @@ Every ``K_k`` only lowers Fock index, so the channel maps a cutoff-``N`` space i
 itself with **no leakage**, and ``sum_k K_k^dag K_k = I`` holds *exactly* on the
 truncated space (the identity ``sum_k C(n, k) (1-eta)^k eta^(n-k) = 1`` is a binomial
 expansion that terminates at ``k = n``). Pure loss therefore introduces no truncation
-error of its own -- a property worth keeping in mind, because it means a trace defect
-seen in a longer circuit came from somewhere else.
+error of its own, so a trace defect observed in a longer circuit originates elsewhere.
 """
 
 from __future__ import annotations
