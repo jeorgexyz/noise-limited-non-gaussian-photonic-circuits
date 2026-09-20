@@ -112,6 +112,10 @@ ol.roadmap li.done::before{background:var(--accent); border-color:var(--accent);
 ol.roadmap li.done{color:var(--muted)}
 .tag{font-size:.7rem; text-transform:uppercase; letter-spacing:.05em; padding:2px 8px; border-radius:999px; border:1px solid var(--border); color:var(--muted); margin-left:8px; white-space:nowrap}
 
+.points{list-style:none; padding:0; margin:20px 0}
+.points li{padding:12px 0; border-bottom:1px solid var(--border); font-size:.95rem}
+.points li:last-child{border-bottom:none}
+.points strong{font-weight:600}
 footer{padding:36px 0 56px; font-size:.85rem; color:var(--muted); text-align:center}
 .theme-toggle{
   position:fixed; top:14px; right:14px; z-index:20;
@@ -503,31 +507,13 @@ footer{padding:36px 0 56px; font-size:.85rem; color:var(--muted); text-align:cen
 <section>
   <div class="wrap">
     <h2>Method</h2>
-    <div class="cards">
-      <div class="card">
-        <h4>Two backends</h4>
-        <p>A pure-NumPy reference backend runs the single-mode sweeps, with Piquasso 8.0.1
-        providing a separate implementation for cross-checks. Interleaved Kerr/loss
-        trajectories are checked across both backends.</p>
-      </div>
-      <div class="card">
-        <h4>Closed forms first</h4>
-        <p>Pure loss, Fock and coherent Wigner functions, the lossy-photon negativity
-        integral and the phase-diffusion average all have analytic references used as
-        tests.</p>
-      </div>
-      <div class="card">
-        <h4>Convergence enforced</h4>
-        <p>The depth sweep checks NG fidelity at every depth with a larger cutoff.
-        Boundary candidates also receive extra optimizer starts and Wigner grid checks.
-        Reported thresholds carry a stated tolerance and numerical diagnostics.</p>
-      </div>
-      <div class="card">
-        <h4>Bounded scope</h4>
-        <p>Results currently cover one mode. The planned extension is to 2–4 modes,
-        where Fock dimension grows combinatorially.</p>
-      </div>
-    </div>
+    <ul class="points">
+      <li><strong>Two backends.</strong> A pure-NumPy reference backend runs the single-mode sweeps, with Piquasso 8.0.1 providing a separate implementation for cross-checks. Interleaved Kerr/loss trajectories are checked across both backends.</li>
+      <li><strong>Closed forms first.</strong> Pure loss, Fock and coherent Wigner functions, the lossy-photon negativity integral and the phase-diffusion average all have analytic references used as tests.</li>
+      <li><strong>Convergence enforced.</strong> The depth sweep checks NG fidelity at every depth with a larger cutoff. Boundary candidates also receive extra optimizer starts and Wigner grid checks. Reported thresholds carry a stated tolerance and numerical diagnostics.</li>
+      <li><strong>Bounded scope.</strong> Results currently cover one mode. The planned extension is to 2–4 modes, where Fock dimension grows combinatorially.</li>
+    </ul>
+
 <pre><code>pip install -e ".[sim]"
 pytest tests/ -q
 python experiments/00_validation/run_validation.py
