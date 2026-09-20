@@ -28,22 +28,22 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "src"))
 
-from ngphotonic.backends.reference import (  # noqa: E402
+from ngphotonic.backends.reference import (
     fock_dm,
     mean_photon_number,
     purity,
     to_dm,
     vacuum_dm,
 )
-from ngphotonic.metrics.negativity import (  # noqa: E402
+from ngphotonic.metrics.negativity import (
     analytic_lossy_fock1_abs_integral,
     grid_diagnostics,
     integrate_abs_wigner,
     negative_volume,
     wigner_log_negativity,
 )
-from ngphotonic.metrics.wigner import phase_space_grid, wigner  # noqa: E402
-from ngphotonic.noise.loss import apply_loss  # noqa: E402
+from ngphotonic.metrics.wigner import phase_space_grid, wigner
+from ngphotonic.noise.loss import apply_loss
 
 CUTOFF = 30
 GRID_LIMIT = 6.0
@@ -193,7 +193,7 @@ def make_figure(sweep: dict, convergence: list[dict], path: Path) -> None:
     ax.axvline(0.5, ls="--", color="C3", lw=1.2)
     ax.annotate(r"$\eta = 1/2$", xy=(0.5, 1.30), xytext=(0.17, 1.33),
                 color="C3", fontsize=10,
-                arrowprops=dict(arrowstyle="->", color="C3", lw=1.0))
+                arrowprops={"arrowstyle": "->", "color": "C3", "lw": 1.0})
     ax.set_xlabel(r"transmissivity $\eta$")
     ax.set_ylabel(r"$\int |W|\,dx\,dp$")
     ax.set_title("Lossy single photon:\nsimulation reproduces closed form")

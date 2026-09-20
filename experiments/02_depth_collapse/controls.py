@@ -7,20 +7,20 @@ This distinguishes ordering effects from simply increasing the total gate/noise 
 The target, energy budget, and Gaussian baseline are identical at every depth.
 """
 
-from dataclasses import asdict, replace
 import json
-from pathlib import Path
 import sys
 import warnings
+from dataclasses import asdict, replace
+from pathlib import Path
 
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "src"))
 
-from ngphotonic.backends.reference import squeezed_ket, to_dm  # noqa: E402
-from ngphotonic.circuits.templates import LayerSpec, run_layered  # noqa: E402
-from ngphotonic.sweeps.depth import DepthConfig, evaluate_depth  # noqa: E402
+from ngphotonic.backends.reference import squeezed_ket, to_dm
+from ngphotonic.circuits.templates import LayerSpec, run_layered
+from ngphotonic.sweeps.depth import DepthConfig, evaluate_depth
 
 
 def fixed_total_control(config: DepthConfig) -> dict:
@@ -45,12 +45,14 @@ def main() -> int:
     config = DepthConfig()
     control = fixed_total_control(config)
     high = fixed_total_control(replace(config, cutoff=44, extra_starts=11, seed=1))
-    errors = {key: max(abs(a[key]-b[key]) for a, b in zip(control["rows"], high["rows"]))
+    errors = {key: max(abs(a[key] - b[key])
+                       for a, b in zip(control["rows"], high["rows"], strict=True))
               for key in ("s_ng", "s_gaussian", "advantage", "lumped_trace_distance")}
     passed = max(errors.values()) < 1e-5
     report = {
         "configuration": asdict(config), "control": control,
-        "protocol": "Fixed total Kerr, transmissivity, phase variance, input energy and pure target; "
+        "protocol": "Fixed total Kerr, transmissivity, phase variance, input energy "
+                    "and pure target; "
                     "only their subdivision into interleaved layers changes.",
         "validation": {"passed": passed, "higher_cutoff": 44, "extra_starts": 11,
                        "seed": 1, "max_errors": errors},

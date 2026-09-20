@@ -47,7 +47,7 @@ def _small_grid(limit: float = 2.5, points: int = 21):
 
 def test_vacuum_matches_gaussian() -> None:
     """``W_vac(x, p) = exp(-(x^2 + p^2)) / pi``."""
-    x, p, X, P = phase_space_grid(limit=5.0, points=81)
+    _x, _p, X, P = phase_space_grid(limit=5.0, points=81)
     W = wigner(vacuum_dm(CUTOFF), X, P)
     np.testing.assert_allclose(W, np.exp(-(X**2 + P**2)) / np.pi, atol=1e-12)
 
@@ -55,7 +55,7 @@ def test_vacuum_matches_gaussian() -> None:
 @pytest.mark.parametrize("n", [0, 1, 2, 3, 4])
 def test_fock_states_match_laguerre_closed_form(n: int) -> None:
     """``W_n = ((-1)^n / pi) L_n(2 r^2) exp(-r^2)``."""
-    x, p, X, P = phase_space_grid(limit=5.0, points=81)
+    _x, _p, X, P = phase_space_grid(limit=5.0, points=81)
     np.testing.assert_allclose(wigner(fock_dm(n, CUTOFF), X, P), wigner_fock(n, X, P), atol=1e-12)
 
 
@@ -69,7 +69,7 @@ def test_single_photon_has_known_value_at_origin() -> None:
 @pytest.mark.parametrize("alpha", [0.0, 0.7, 1.2j, 0.8 - 0.5j])
 def test_coherent_state_is_displaced_gaussian(alpha: complex) -> None:
     """A coherent state is a vacuum Gaussian centred at ``(sqrt(2) Re a, sqrt(2) Im a)``."""
-    x, p, X, P = phase_space_grid(limit=6.0, points=81)
+    _x, _p, X, P = phase_space_grid(limit=6.0, points=81)
     W = wigner(to_dm(coherent_ket(alpha, CUTOFF)), X, P)
 
     x0 = np.sqrt(2.0) * np.real(alpha)
@@ -81,7 +81,7 @@ def test_coherent_state_is_displaced_gaussian(alpha: complex) -> None:
 def test_thermal_state_is_wider_gaussian() -> None:
     """``W_th = exp(-r^2/(2 n_bar + 1)) / (pi (2 n_bar + 1))``."""
     n_bar = 0.8
-    x, p, X, P = phase_space_grid(limit=8.0, points=101)
+    _x, _p, X, P = phase_space_grid(limit=8.0, points=101)
     W = wigner(thermal_dm(n_bar, CUTOFF), X, P)
     spread = 2.0 * n_bar + 1.0
     expected = np.exp(-(X**2 + P**2) / spread) / (np.pi * spread)

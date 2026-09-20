@@ -23,7 +23,7 @@ such as cat states have to be included for the comparison to say anything.
 
 from __future__ import annotations
 
-from typing import Callable
+from collections.abc import Callable
 
 import numpy as np
 from scipy.special import gammaln
@@ -35,8 +35,8 @@ __all__ = [
     "homodyne_distribution",
     "homodyne_fisher_information",
     "phase_rotation",
-    "quantum_fisher_information_pure",
     "quadrature_grid",
+    "quantum_fisher_information_pure",
 ]
 
 

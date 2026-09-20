@@ -35,18 +35,24 @@ jobs:
             pip install -e ".[dev]"
           fi
 
-      - name: Lint
-        run: ruff check src/ tests/ experiments/
-
+      # Tests run before lint, and the later steps use `if: always()`, so a style
+      # finding cannot hide a genuine test or physics regression. Every step still
+      # contributes to the job's pass/fail.
       - name: Test
         run: pytest tests/ -q --junitxml=results.xml
 
+      - name: Lint
+        if: always()
+        run: ruff check src/ tests/ experiments/
+
       - name: Validation experiment
+        if: always()
         # The headline closed-form check runs in CI, so a regression in the
         # physics is caught rather than only a regression in the tests.
         run: python experiments/00_validation/run_validation.py
 
       - name: Kerr depth experiment smoke test
+        if: always()
         run: python experiments/02_depth_collapse/run.py --smoke
 
       - name: Upload test results

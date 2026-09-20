@@ -14,9 +14,9 @@ single adjoint-channel effect. The NG evolution is always evaluated layer by lay
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
-from typing import Callable
 import warnings
+from collections.abc import Callable
+from dataclasses import asdict, dataclass
 
 import numpy as np
 
@@ -47,6 +47,8 @@ class DepthConfig:
         for name in ("cutoff", "grid_points", "extra_starts", "seed"):
             value = getattr(self, name)
             if isinstance(value, bool) or not isinstance(value, int):
+                # ValueError, not TypeError: this dataclass validates every field
+                # through one channel, and callers match on ValueError.
                 raise ValueError(f"{name} must be an integer.")
         if self.cutoff < 4 or self.grid_points < 3 or self.extra_starts < 0 or self.seed < 0:
             raise ValueError("Invalid cutoff, grid_points, extra_starts or seed.")

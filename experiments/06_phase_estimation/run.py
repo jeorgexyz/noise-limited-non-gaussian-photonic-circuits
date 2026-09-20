@@ -46,21 +46,21 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "src"))
 
-from ngphotonic.backends.reference import (  # noqa: E402
+from ngphotonic.backends.reference import (
     apply_unitary,
     cat_ket,
     fock_ket,
     mean_photon_number,
     to_dm,
 )
-from ngphotonic.metrics.homodyne import (  # noqa: E402
+from ngphotonic.metrics.homodyne import (
     homodyne_fisher_information,
     phase_rotation,
     quadrature_grid,
     quantum_fisher_information_pure,
 )
-from ngphotonic.noise.loss import apply_loss  # noqa: E402
-from ngphotonic.optimization.gaussian_baseline import (  # noqa: E402
+from ngphotonic.noise.loss import apply_loss
+from ngphotonic.optimization.gaussian_baseline import (
     default_shell_starts,
     optimize_gaussian_baseline,
 )
@@ -70,7 +70,7 @@ from ngphotonic.optimization.gaussian_baseline import (  # noqa: E402
 # Re-optimizing at increasing cutoff gave 54.27 (30) -> 66.54 (50) -> 67.96 (80) at
 # n_bar = 2.2, so 60 sits inside the converged region.
 CUTOFF = 60
-QUAD_GRID = dict(limit=8.0, points=801)
+QUAD_GRID = {"limit": 8.0, "points": 801}
 ETAS = [1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1]
 THETA_SCAN = np.linspace(0.0, np.pi, 33)
 
@@ -158,7 +158,7 @@ def make_figure(sweeps: dict, prep: dict | None, path: Path) -> None:
     colors = plt.cm.viridis(np.linspace(0, 0.75, len(sweeps)))
 
     ax = axes[0]
-    for (name, rows), color in zip(sweeps.items(), colors):
+    for (name, rows), color in zip(sweeps.items(), colors, strict=True):
         etas = [r["eta"] for r in rows]
         ax.plot(etas, [r["fisher_ng"] for r in rows], "-o", ms=3, color=color,
                 label=f"{name} — probe")
@@ -170,7 +170,7 @@ def make_figure(sweeps: dict, prep: dict | None, path: Path) -> None:
     ax.legend(fontsize=6.5, frameon=False)
 
     ax = axes[1]
-    for (name, rows), color in zip(sweeps.items(), colors):
+    for (name, rows), color in zip(sweeps.items(), colors, strict=True):
         ax.plot([r["eta"] for r in rows], [r["advantage"] for r in rows], "-o", ms=3,
                 color=color, label=name)
     ax.axhline(0.0, color="k", lw=0.8)

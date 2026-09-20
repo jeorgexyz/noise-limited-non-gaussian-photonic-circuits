@@ -47,8 +47,8 @@ are the ones that need the convergence evidence.
 
 from __future__ import annotations
 
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
-from typing import Callable, Sequence
 
 import numpy as np
 from scipy.optimize import minimize
@@ -62,8 +62,8 @@ from ..baselines.gaussian import (
 
 __all__ = [
     "BaselineResult",
-    "optimize_gaussian_baseline",
     "default_starts",
+    "optimize_gaussian_baseline",
     "shell_to_params",
 ]
 
@@ -208,7 +208,8 @@ def optimize_gaussian_baseline(
 
     on_shell = parameterization == "shell"
     if starts is None:
-        starts = default_shell_starts(seed=seed) if on_shell else default_starts(n_budget, seed=seed)
+        starts = (default_shell_starts(seed=seed) if on_shell
+                  else default_starts(n_budget, seed=seed))
 
     # Shell coordinates are (s, psi, phi); free coordinates are (Re a, Im a, r, phi).
     # Passing one to the other silently reinterprets the vector and explores a

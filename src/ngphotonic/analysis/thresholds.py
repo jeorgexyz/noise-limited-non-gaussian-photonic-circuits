@@ -10,11 +10,10 @@ rather than the physics.
 
 from __future__ import annotations
 
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
-from typing import Callable, Sequence
 
-
-__all__ = ["Threshold", "last_viable_depth", "critical_parameter", "resolution_floor"]
+__all__ = ["Threshold", "critical_parameter", "last_viable_depth", "resolution_floor"]
 
 
 @dataclass(frozen=True)

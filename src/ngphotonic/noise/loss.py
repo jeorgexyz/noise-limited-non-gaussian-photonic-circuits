@@ -29,7 +29,7 @@ from __future__ import annotations
 import numpy as np
 from scipy.special import gammaln, xlogy
 
-__all__ = ["loss_kraus", "apply_loss", "analytic_lossy_fock1"]
+__all__ = ["analytic_lossy_fock1", "apply_loss", "loss_kraus"]
 
 
 def loss_kraus(eta: float, cutoff: int) -> list[np.ndarray]:

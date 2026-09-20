@@ -20,8 +20,8 @@ import warnings
 import numpy as np
 import pytest
 
-from ngphotonic.backends import reference as ref
 from ngphotonic.backends import piquasso as pqb
+from ngphotonic.backends import reference as ref
 from ngphotonic.noise.loss import apply_loss
 
 pytestmark = pytest.mark.skipif(

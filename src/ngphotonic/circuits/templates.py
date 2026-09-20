@@ -30,7 +30,7 @@ from ..backends.reference import apply_unitary, kerr_unitary
 from ..noise.loss import apply_loss
 from ..noise.phase_diffusion import apply_phase_diffusion
 
-__all__ = ["LayerSpec", "apply_layer", "run_layered", "is_reducible", "collapsed_equivalent"]
+__all__ = ["LayerSpec", "apply_layer", "collapsed_equivalent", "is_reducible", "run_layered"]
 
 
 @dataclass(frozen=True)

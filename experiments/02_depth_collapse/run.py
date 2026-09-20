@@ -14,31 +14,35 @@ same pipeline on a short, explicitly horizon-limited sweep. It cannot be publish
 from __future__ import annotations
 
 import argparse
-from dataclasses import asdict, replace
-from datetime import datetime, timezone
-import importlib.metadata
 import hashlib
+import importlib.metadata
 import json
-from pathlib import Path
 import platform
 import shutil
 import subprocess
 import sys
 import time
 import warnings
+from dataclasses import asdict, replace
+from datetime import UTC, datetime
+from pathlib import Path
 
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "src"))
 
-from ngphotonic.backends.reference import squeezed_ket, to_dm  # noqa: E402
-from ngphotonic.circuits.templates import LayerSpec, apply_layer  # noqa: E402
-from ngphotonic.metrics.negativity import grid_diagnostics, wigner_log_negativity  # noqa: E402
-from ngphotonic.metrics.operational import target_state_fidelity  # noqa: E402
-from ngphotonic.metrics.wigner import phase_space_grid, wigner  # noqa: E402
-from ngphotonic.sweeps.depth import (  # noqa: E402
-    DepthConfig, depth_summary, evaluate_depth, sweep_depth, vacuum_advantage_bound,
+from ngphotonic.backends.reference import squeezed_ket, to_dm
+from ngphotonic.circuits.templates import LayerSpec, apply_layer
+from ngphotonic.metrics.negativity import grid_diagnostics, wigner_log_negativity
+from ngphotonic.metrics.operational import target_state_fidelity
+from ngphotonic.metrics.wigner import phase_space_grid, wigner
+from ngphotonic.sweeps.depth import (
+    DepthConfig,
+    depth_summary,
+    evaluate_depth,
+    sweep_depth,
+    vacuum_advantage_bound,
 )
 
 
@@ -73,8 +77,8 @@ def validate_sweep(sweep: dict, config: DepthConfig, settings: dict) -> dict:
     fine_grid = phase_space_grid(limit=config.grid_limit,
                                  points=settings["validation_grid_points"])
     # Keep approximately the same spacing while increasing the grid extent.
-    extent_points = int(round((settings["validation_grid_points"] - 1)
-                              * settings["validation_grid_limit"] / config.grid_limit)) + 1
+    extent_points = round((settings["validation_grid_points"] - 1)
+                              * settings["validation_grid_limit"] / config.grid_limit) + 1
     extent_grid = phase_space_grid(limit=settings["validation_grid_limit"], points=extent_points)
     base_grid = phase_space_grid(limit=config.grid_limit, points=config.grid_points)
     rho_low = to_dm(source_low)
@@ -124,7 +128,8 @@ def validate_sweep(sweep: dict, config: DepthConfig, settings: dict) -> dict:
     boundary_stable = (checked_summary["viable_intervals"] == sweep["collapse"]["viable_intervals"])
     passed = (
         max_ng_error < settings["score_tolerance"]
-        and max(maxima[k] for k in ("baseline_cutoff_error", "baseline_seed_error", "advantage_error"))
+        and max(maxima[k] for k in ("baseline_cutoff_error", "baseline_seed_error",
+                                    "advantage_error"))
         < settings["score_tolerance"]
         and max(maxima[k] for k in ("wigner_cutoff_error", "wigner_grid_error",
                                    "wigner_extent_error", "wigner_norm_error"))
@@ -172,7 +177,9 @@ def make_figure(report: dict, path: Path) -> None:
     axes[0, 0].set(title="Task advantage can disappear and revive", ylabel=r"$A=S_{NG}-S_G^*$")
     axes[0, 0].legend(fontsize=7, ncol=2, frameon=False)
     axes[0, 1].set(title="Resource survival is a different observable", ylabel=r"$W_{\log}$")
-    for ax, sigma in zip(axes[1], sigmas):
+    # strict=False: the axes row is longer than the sigma list, and the extra
+    # axis is handled separately below. Truncation here is intended.
+    for ax, sigma in zip(axes[1], sigmas, strict=False):
         matrix = np.array([[r["advantage"] for r in s["rows"][:display_depth + 1]]
                            for s in sweeps if s["layer"]["sigma_phi"] == sigma])
         vmax = max(float(np.max(np.abs(matrix))), epsilon)
@@ -186,7 +193,7 @@ def make_figure(report: dict, path: Path) -> None:
                 ax.scatter(last, i, marker="|", color="black", s=160)
                 ax.annotate(f" D*={last}", (last, i), xytext=(4, 5), textcoords="offset points",
                             fontsize=8, color="black",
-                            bbox=dict(facecolor="white", edgecolor="none", alpha=.7, pad=1))
+                            bbox={"facecolor": "white", "edgecolor": "none", "alpha": .7, "pad": 1})
         ax.set(title=rf"Discrete collapse map: $\sigma={sigma:g}$", ylabel=r"per-layer $\eta$")
         fig.colorbar(plot, ax=ax, label="advantage", fraction=.045)
     if len(sigmas) == 1:
@@ -195,7 +202,9 @@ def make_figure(report: dict, path: Path) -> None:
         ax.set_xlabel("depth D")
     horizons = sorted({s["collapse"]["searched_through"] for s in sweeps})
     fig.suptitle("Kerr depth collapse | squeezed input r=0.6, Kerr strength 0.2", fontsize=13)
-    fig.text(.5, .005, f"Shown through D={display_depth}; all integer depths searched through {horizons}. "
+    fig.text(.5, .005,
+             f"Shown through D={display_depth}; all integer depths searched "
+             f"through {horizons}. "
              "Baseline: Gaussian input preparation, identical noise, no intermediate pumping.",
              ha="center", fontsize=8)
     fig.tight_layout(rect=(0, .025, 1, .97))
@@ -240,8 +249,8 @@ def main() -> int:
                             "sweeps": sweeps}, indent=2, allow_nan=False), encoding="utf-8")
     try:
         git = ["git", "-c", f"safe.directory={ROOT.as_posix()}"]
-        commit = subprocess.check_output(git + ["rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
-        dirty = bool(subprocess.check_output(git + ["status", "--porcelain"], cwd=ROOT, text=True))
+        commit = subprocess.check_output([*git, "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
+        dirty = bool(subprocess.check_output([*git, "status", "--porcelain"], cwd=ROOT, text=True))
     except (OSError, subprocess.CalledProcessError):
         commit, dirty = None, None
     report = {
@@ -254,16 +263,19 @@ def main() -> int:
             "baseline": "pure displaced squeezed input, exact analytic input-energy shell; "
                         "D matched noise exposures, no Kerr, no intermediate pumping",
             "score": "fidelity to the common pure target",
-            "bound_direction": "best-found Gaussian score is a lower bound; advantage is an upper bound",
-            "future_certificate": "A(D) <= 2 sqrt(sinh(r)^2 eta^D) using the squeezed-input witness",
+            "bound_direction": "best-found Gaussian score is a lower bound; "
+                           "advantage is an upper bound",
+            "future_certificate": "A(D) <= 2 sqrt(sinh(r)^2 eta^D) using the "
+                              "squeezed-input witness",
             "negativity_threshold": "not used to define operational D*",
             "kerr_convention_source": "https://docs.piquasso.com/instructions/gates.html#piquasso.instructions.gates.Kerr",
         },
         "provenance": {
-            "utc": datetime.now(timezone.utc).isoformat(), "git_commit": commit,
+            "utc": datetime.now(UTC).isoformat(), "git_commit": commit,
             "working_tree_dirty": dirty, "python": platform.python_version(),
             "platform": platform.platform(),
-            "packages": {p: importlib.metadata.version(p) for p in ("numpy", "scipy", "matplotlib")},
+            "packages": {p: importlib.metadata.version(p)
+                     for p in ("numpy", "scipy", "matplotlib")},
             "source_sha256": {
                 str(p.relative_to(ROOT).as_posix()): hashlib.sha256(p.read_bytes()).hexdigest()
                 for p in sorted((ROOT / "src").rglob("*.py"))
@@ -282,7 +294,8 @@ def main() -> int:
         print(f"Validation failed; inspect {report_path}. Publication artifacts were not updated.")
         return 1
     if args.publish:
-        for path in (ROOT / "figures" / figure_path.name, ROOT / "docs" / "assets" / figure_path.name):
+        for path in (ROOT / "figures" / figure_path.name,
+                 ROOT / "docs" / "assets" / figure_path.name):
             shutil.copyfile(figure_path, path)
         shutil.copyfile(report_path, Path(__file__).with_name("report.json"))
     print(f"Wrote {report_path} ({report['runtime_seconds']:.1f}s)", flush=True)

@@ -9,11 +9,11 @@ from .phase_diffusion import (
 )
 
 __all__ = [
-    "apply_loss",
-    "loss_kraus",
     "analytic_lossy_fock1",
+    "apply_loss",
     "apply_phase_diffusion",
     "apply_phase_diffusion_sampled",
-    "phase_diffusion_factors",
     "compose_sigma",
+    "loss_kraus",
+    "phase_diffusion_factors",
 ]

@@ -9,11 +9,11 @@ from .negativity import (
 from .wigner import phase_space_grid, wigner, wigner_fock
 
 __all__ = [
+    "grid_diagnostics",
+    "integrate_abs_wigner",
+    "negative_volume",
+    "phase_space_grid",
     "wigner",
     "wigner_fock",
-    "phase_space_grid",
     "wigner_log_negativity",
-    "negative_volume",
-    "integrate_abs_wigner",
-    "grid_diagnostics",
 ]

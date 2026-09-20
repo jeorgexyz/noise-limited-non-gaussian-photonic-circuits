@@ -17,7 +17,7 @@ from importlib import import_module
 
 from . import reference
 
-__all__ = ["reference", "piquasso"]
+__all__ = ["piquasso", "reference"]
 
 
 def __getattr__(name: str):

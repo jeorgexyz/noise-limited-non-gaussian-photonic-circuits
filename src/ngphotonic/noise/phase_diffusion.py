@@ -40,10 +40,10 @@ from __future__ import annotations
 import numpy as np
 
 __all__ = [
-    "phase_diffusion_factors",
     "apply_phase_diffusion",
     "apply_phase_diffusion_sampled",
     "compose_sigma",
+    "phase_diffusion_factors",
 ]
 
 

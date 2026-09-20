@@ -48,7 +48,7 @@ from scipy.special import eval_laguerre, gammaln
 
 from ..backends.reference import annihilation, creation
 
-__all__ = ["wigner", "wigner_fock", "phase_space_grid"]
+__all__ = ["phase_space_grid", "wigner", "wigner_fock"]
 
 
 def phase_space_grid(

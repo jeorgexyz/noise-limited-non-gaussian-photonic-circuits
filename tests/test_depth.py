@@ -8,16 +8,29 @@ import numpy as np
 import pytest
 
 from ngphotonic.backends.reference import (
-    apply_unitary, fock_dm, kerr_unitary, mean_photon_number, squeezed_ket, to_dm,
+    apply_unitary,
+    fock_dm,
+    kerr_unitary,
+    mean_photon_number,
+    squeezed_ket,
+    to_dm,
 )
 from ngphotonic.circuits.templates import (
-    LayerSpec, apply_layer, collapsed_equivalent, is_reducible, run_layered,
+    LayerSpec,
+    apply_layer,
+    collapsed_equivalent,
+    is_reducible,
+    run_layered,
 )
 from ngphotonic.metrics.operational import target_state_fidelity
 from ngphotonic.noise.loss import apply_loss
 from ngphotonic.noise.phase_diffusion import apply_phase_diffusion
 from ngphotonic.sweeps.depth import (
-    DepthConfig, certified_horizon, depth_summary, fidelity_effect, sweep_depth,
+    DepthConfig,
+    certified_horizon,
+    depth_summary,
+    fidelity_effect,
+    sweep_depth,
     vacuum_advantage_bound,
 )
 
@@ -31,14 +44,17 @@ def _quiet_tails():
 
 def test_reference_import_does_not_initialize_optional_backend():
     result = subprocess.run(
-        [sys.executable, "-S", "-c", "import sys; import ngphotonic.backends.reference; "
-         "assert 'piquasso' not in sys.modules"], capture_output=True, text=True,
+        [sys.executable, "-S", "-c", ("import sys; import ngphotonic.backends.reference; "
+         "assert 'piquasso' not in sys.modules")], capture_output=True, text=True,
+        check=False,
     )
     # pytest's pythonpath is not inherited by subprocesses; pass it explicitly.
     if result.returncode and "No module named" in result.stderr:
         import os
         env = dict(os.environ, PYTHONPATH=os.pathsep.join(sys.path))
-        result = subprocess.run(result.args, capture_output=True, text=True, env=env)
+        result = subprocess.run(
+            result.args, capture_output=True, text=True, env=env, check=False
+        )
     assert result.returncode == 0, result.stderr
 
 

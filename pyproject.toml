@@ -5,7 +5,7 @@ description = "Noise-induced collapse surfaces for operational non-Gaussianity i
 readme = "README.md"
 requires-python = ">=3.12"
 license = { file = "LICENSE" }
-authors = [{ name = "J. D. Anderson" }]
+authors = [{ name = "Jeorge D. Anderson II" }]
 keywords = [
     "quantum-optics",
     "continuous-variable",
@@ -37,7 +37,9 @@ data = [
 dev = [
     "pytest>=8.0",
     "pytest-cov>=4.1",
-    "ruff>=0.3",
+    # Pinned exactly: ruff's default rule set widens between releases, so an
+    # unpinned linter turns CI red with no change to the code. Bump deliberately.
+    "ruff==0.16.8",
     "mypy>=1.8",
 ]
 
@@ -54,6 +56,19 @@ packages = ["src/ngphotonic"]
 [tool.ruff]
 line-length = 100
 target-version = "py312"
+
+[tool.ruff.lint]
+# Selected explicitly rather than inherited, so the gate is a property of this
+# repository and not of whichever ruff version happens to be installed. Kept to
+# correctness and consistency rules; the more opinionated families (PL, TRY, C4)
+# are left out deliberately rather than suppressed case by case.
+select = ["E", "F", "I", "UP", "B", "RUF"]
+
+[tool.ruff.lint.per-file-ignores]
+# Experiment scripts insert the source tree on sys.path before importing the
+# package, so module-level imports cannot come first. This is structural, not an
+# oversight, and annotating every line would be noise.
+"experiments/**" = ["E402"]
 
 [tool.mypy]
 python_version = "3.12"

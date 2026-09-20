@@ -36,8 +36,8 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "src"))
 
-from ngphotonic.analysis.thresholds import critical_parameter, resolution_floor  # noqa: E402
-from ngphotonic.backends.reference import (  # noqa: E402
+from ngphotonic.analysis.thresholds import critical_parameter, resolution_floor
+from ngphotonic.backends.reference import (
     apply_unitary,
     cat_ket,
     fock_dm,
@@ -46,15 +46,15 @@ from ngphotonic.backends.reference import (  # noqa: E402
     tail_weight,
     to_dm,
 )
-from ngphotonic.metrics.negativity import wigner_log_negativity  # noqa: E402
-from ngphotonic.metrics.wigner import phase_space_grid, wigner  # noqa: E402
-from ngphotonic.noise.loss import apply_loss  # noqa: E402
+from ngphotonic.metrics.negativity import wigner_log_negativity
+from ngphotonic.metrics.wigner import phase_space_grid, wigner
+from ngphotonic.noise.loss import apply_loss
 
 # Cutoff 30 / 201 points chosen by measurement, not caution: eta* agrees to five
 # decimals with cutoff 40 and 301 points, while running ~12x faster. The W_log
 # quadrature error at this grid is 1.3e-04, which sets METRIC_NOISE below.
 CUTOFF = 30
-GRID = dict(limit=6.0, points=201)
+GRID = {"limit": 6.0, "points": 201}
 EPSILON = 1e-3
 EPSILONS = [1e-4, 1e-3, 1e-2, 5e-2, 1e-1]
 METRIC_NOISE = 1e-4  # quadrature floor on W_log for this grid
@@ -148,7 +148,7 @@ def make_figure(sweeps: dict, thresholds: dict, epsilon_scan: dict, path: Path) 
     colors = plt.cm.viridis(np.linspace(0, 0.9, len(sweeps)))
 
     ax = axes[0]
-    for (name, rows), color in zip(sweeps.items(), colors):
+    for (name, rows), color in zip(sweeps.items(), colors, strict=True):
         ax.plot([r["eta"] for r in rows], [r["w_log"] for r in rows], label=name, color=color)
     ax.axhline(EPSILON, ls=":", color="k", lw=1)
     ax.axvline(0.5, ls="--", color="C3", lw=1)
@@ -171,7 +171,7 @@ def make_figure(sweeps: dict, thresholds: dict, epsilon_scan: dict, path: Path) 
     ax.set_title(rf"Critical transmissivity ($\epsilon$ = {EPSILON:g})" "\nbars: honest resolution")
 
     ax = axes[2]
-    for (name, rows), color in zip(epsilon_scan.items(), colors):
+    for (name, rows), color in zip(epsilon_scan.items(), colors, strict=True):
         good = [r for r in rows if r["resolved"]]
         ax.semilogx([r["epsilon"] for r in good], [r["eta_star"] for r in good],
                     "-o", ms=3, label=name, color=color)

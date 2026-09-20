@@ -9,7 +9,8 @@ abstract: >-
 type: software
 authors:
   - family-names: Anderson
-    given-names: J. D.
+    given-names: Jeorge D.
+    name-suffix: II
 repository-code: "https://github.com/jeorgexyz/noise-limited-non-gaussian-photonic-circuits"
 license: MIT
 version: 0.2.0

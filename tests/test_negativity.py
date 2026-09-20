@@ -48,7 +48,7 @@ CUTOFF = 30
 # non-Gaussian (Hudson) and shows spurious negativity until the tail is negligible.
 GAUSSIAN_CUTOFF = 60
 # Grid chosen by the convergence test below, not by eye.
-GRID = dict(limit=6.0, points=401)
+GRID = {"limit": 6.0, "points": 401}
 
 # |W| has a kink at each zero crossing, so trapezoidal quadrature converges more slowly
 # than its usual O(h^2). 1e-4 is the realistic tolerance on this grid.

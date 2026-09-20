@@ -43,24 +43,25 @@ are not directly comparable to a per-mode truncation. Single-mode work is unaffe
 
 from __future__ import annotations
 
-from typing import Any, Iterable, Sequence
+from collections.abc import Iterable, Sequence
+from typing import Any
 
 import numpy as np
 
 __all__ = [
-    "PIQUASSO_AVAILABLE",
     "HBAR",
-    "run",
-    "transmissivity_to_theta",
-    "vacuum",
+    "PIQUASSO_AVAILABLE",
     "create",
-    "loss",
-    "kerr",
     "cubic_phase",
-    "squeezing",
     "displacement",
     "fock_dm",
+    "kerr",
+    "loss",
     "require_piquasso",
+    "run",
+    "squeezing",
+    "transmissivity_to_theta",
+    "vacuum",
 ]
 
 HBAR = 1.0

@@ -28,9 +28,9 @@ import numpy as np
 from ..backends.reference import fidelity, number
 
 __all__ = [
-    "target_state_fidelity",
     "phase_estimation_fisher_information",
     "photon_number_distribution",
+    "target_state_fidelity",
 ]
 
 

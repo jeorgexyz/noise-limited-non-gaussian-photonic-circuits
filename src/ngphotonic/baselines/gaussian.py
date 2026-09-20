@@ -36,12 +36,12 @@ from ..backends.reference import (
 )
 
 __all__ = [
+    "PARAM_BOUNDS",
     "GaussianParams",
     "displace_unitary",
     "gaussian_ket",
-    "mean_photon_number_analytic",
     "is_gaussian_channel",
-    "PARAM_BOUNDS",
+    "mean_photon_number_analytic",
 ]
 
 
@@ -63,7 +63,7 @@ class GaussianParams:
         return complex(self.alpha_re, self.alpha_im)
 
     @classmethod
-    def from_vector(cls, vector) -> "GaussianParams":
+    def from_vector(cls, vector) -> GaussianParams:
         """Build from the flat array the optimizer works in."""
         return cls(*(float(v) for v in vector))
 

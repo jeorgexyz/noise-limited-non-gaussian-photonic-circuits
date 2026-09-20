@@ -168,7 +168,7 @@ def test_photon_number_distribution_is_a_distribution() -> None:
 def test_fisher_information_is_zero_for_phase_insensitive_state() -> None:
     """A Fock state's photon statistics do not depend on phase, so it carries no
     phase information under photon-number measurement."""
-    from ngphotonic.backends.reference import kerr_unitary, apply_unitary
+    from ngphotonic.backends.reference import apply_unitary, kerr_unitary
 
     def rho_at(theta: float) -> np.ndarray:
         rotation = np.diag(np.exp(-1j * theta * np.arange(CUTOFF)))

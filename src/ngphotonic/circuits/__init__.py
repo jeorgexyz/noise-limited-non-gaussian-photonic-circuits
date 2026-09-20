@@ -14,7 +14,7 @@ from .templates import (
 __all__ = [
     "LayerSpec",
     "apply_layer",
-    "run_layered",
-    "is_reducible",
     "collapsed_equivalent",
+    "is_reducible",
+    "run_layered",
 ]

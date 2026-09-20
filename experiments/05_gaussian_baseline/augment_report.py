@@ -12,6 +12,7 @@ a measured ``A < 0`` can only understate how far ahead the Gaussian actually is.
 
 from __future__ import annotations
 
+import itertools
 import json
 from pathlib import Path
 
@@ -21,7 +22,7 @@ REPORT = ROOT / "results" / "05_gaussian_baseline" / "gaussian_baseline_report.j
 
 def bracket_crossing(rows, key, level):
     ordered = sorted(rows, key=lambda r: r["eta"])
-    for low, high in zip(ordered, ordered[1:]):
+    for low, high in itertools.pairwise(ordered):
         if low[key] <= level < high[key]:
             return [low["eta"], high["eta"]]
     return None
@@ -49,8 +50,11 @@ def main() -> int:
         print(f"  {name}")
         print(f"    negativity threshold             : eta = {summary['negativity_threshold']:.4f}")
         if summary["gaussian_wins_below"] is not None:
-            print(f"    Gaussian baseline wins (A < 0)   : eta <= {summary['gaussian_wins_below']:.2f}"
-                  f"  (min A = {summary['min_advantage']:+.4f})")
+            print(
+                f"    Gaussian baseline wins (A < 0)   : "
+                f"eta <= {summary['gaussian_wins_below']:.2f}"
+                f"  (min A = {summary['min_advantage']:+.4f})"
+            )
         else:
             print(f"    Gaussian baseline never wins     : min A = {summary['min_advantage']:+.4f}")
         if summary["decoupled_etas"]:

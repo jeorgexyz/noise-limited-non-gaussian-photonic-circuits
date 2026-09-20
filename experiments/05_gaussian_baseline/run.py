@@ -48,26 +48,28 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "src"))
 
-from ngphotonic.backends.reference import (  # noqa: E402
+import itertools
+
+from ngphotonic.analysis.thresholds import critical_parameter
+from ngphotonic.backends.reference import (
     cat_ket,
     fock_dm,
     fock_ket,
     mean_photon_number,
     to_dm,
 )
-from ngphotonic.baselines.gaussian import is_gaussian_channel  # noqa: E402
-from ngphotonic.metrics.negativity import wigner_log_negativity  # noqa: E402
-from ngphotonic.metrics.operational import target_state_fidelity  # noqa: E402
-from ngphotonic.metrics.wigner import phase_space_grid, wigner  # noqa: E402
-from ngphotonic.noise.loss import apply_loss  # noqa: E402
-from ngphotonic.analysis.thresholds import critical_parameter  # noqa: E402
-from ngphotonic.optimization.gaussian_baseline import (  # noqa: E402
+from ngphotonic.baselines.gaussian import is_gaussian_channel
+from ngphotonic.metrics.negativity import wigner_log_negativity
+from ngphotonic.metrics.operational import target_state_fidelity
+from ngphotonic.metrics.wigner import phase_space_grid, wigner
+from ngphotonic.noise.loss import apply_loss
+from ngphotonic.optimization.gaussian_baseline import (
     default_shell_starts,
     optimize_gaussian_baseline,
 )
 
 CUTOFF = 30
-GRID = dict(limit=6.0, points=201)
+GRID = {"limit": 6.0, "points": 201}
 ETAS = [1.0, 0.95, 0.9, 0.8, 0.7, 0.6, 0.5, 0.45, 0.4, 0.35, 0.3, 0.25, 0.2, 0.15, 0.1]
 EPSILON = 0.01
 SIGMA_PHI = 0.0  # pure loss only, so the baseline stays a Gaussian channel
@@ -149,7 +151,7 @@ def _bracket_crossing(rows: list[dict], key: str, level: float) -> tuple[float, 
     the bracket keeps the resolution explicit instead of implying a bisected value.
     """
     ordered = sorted(rows, key=lambda r: r["eta"])
-    for low, high in zip(ordered, ordered[1:]):
+    for low, high in itertools.pairwise(ordered):
         if low[key] <= level < high[key]:
             return (low["eta"], high["eta"])
     return None
@@ -212,7 +214,7 @@ def make_figure(sweeps: dict, path: Path) -> None:
     colors = plt.cm.viridis(np.linspace(0, 0.75, len(sweeps)))
 
     ax = axes[0]
-    for (name, rows), color in zip(sweeps.items(), colors):
+    for (name, rows), color in zip(sweeps.items(), colors, strict=True):
         etas = [r["eta"] for r in rows]
         ax.plot(etas, [r["s_ng"] for r in rows], "-o", ms=3, color=color, label=f"{name} — NG")
         ax.plot(etas, [r["s_gaussian"] for r in rows], "--s", ms=3, color=color, alpha=0.65,
@@ -223,7 +225,7 @@ def make_figure(sweeps: dict, path: Path) -> None:
     ax.legend(fontsize=6.5, frameon=False)
 
     ax = axes[1]
-    for (name, rows), color in zip(sweeps.items(), colors):
+    for (name, rows), color in zip(sweeps.items(), colors, strict=True):
         ax.plot([r["eta"] for r in rows], [r["advantage"] for r in rows], "-o", ms=3,
                 color=color, label=name)
     ax.axhline(EPSILON, ls=":", color="k", lw=1)
@@ -298,13 +300,16 @@ def main() -> int:
     for name, summary in summaries.items():
         bracket = summary["advantage_threshold_bracket"]
         print(f"  {name}")
-        print(f"    negativity threshold (bisected)   : eta = {summary['negativity_threshold']:.4f}")
+        print("    negativity threshold (bisected)   : "
+              f"eta = {summary['negativity_threshold']:.4f}")
         if bracket:
-            print(f"    advantage threshold (A > {EPSILON:g})     : eta in [{bracket[0]:.2f}, {bracket[1]:.2f}]")
+            print(f"    advantage threshold (A > {EPSILON:g})     : "
+                  f"eta in [{bracket[0]:.2f}, {bracket[1]:.2f}]")
         else:
             print(f"    advantage threshold (A > {EPSILON:g})     : not crossed in the swept range")
         if summary["gaussian_wins_below"] is not None:
-            print(f"    Gaussian baseline wins (A < 0)    : eta <= {summary['gaussian_wins_below']:.2f}"
+            print("    Gaussian baseline wins (A < 0)    : "
+                  f"eta <= {summary['gaussian_wins_below']:.2f}"
                   f"   (min A = {summary['min_advantage']:+.4f})")
         if summary["decoupled_etas"]:
             print(f"    decoupled regime (W_log = 0, A > {EPSILON:g}): "
