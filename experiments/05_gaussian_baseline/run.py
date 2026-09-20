@@ -62,7 +62,7 @@ from ngphotonic.metrics.wigner import phase_space_grid, wigner  # noqa: E402
 from ngphotonic.noise.loss import apply_loss  # noqa: E402
 from ngphotonic.analysis.thresholds import critical_parameter  # noqa: E402
 from ngphotonic.optimization.gaussian_baseline import (  # noqa: E402
-    default_starts,
+    default_shell_starts,
     optimize_gaussian_baseline,
 )
 
@@ -98,25 +98,22 @@ def non_gaussian_source(name: str, cutoff: int = CUTOFF) -> np.ndarray:
 def sweep_target(name: str, target: np.ndarray, grid) -> list[dict]:
     """Sweep transmissivity, optimizing the Gaussian baseline at each point.
 
-    The previous solution seeds the next, which both accelerates the sweep and keeps
-    the baseline curve smooth; the fixed physically-motivated starts are retained at
-    every point so a warm start cannot trap the optimizer in a branch it should leave.
+    Each point is optimized from the same fixed start set rather than warm-started, so
+    no point inherits a branch from its neighbour.
     """
     x, p, X, P = grid
     source = non_gaussian_source(name)
     budget = mean_photon_number(source)
 
     rows = []
-    warm = None
     for eta in ETAS:
         noisy = apply_loss(source, eta)
         s_ng = target_state_fidelity(noisy, target)
 
-        # 10 starts suffice: the best score is identical at 10, 13 and 19 starts,
-        # only the converged fraction changes.
-        starts = list(default_starts(budget, extra=3))
-        if warm is not None:
-            starts.insert(0, warm)
+        # Shell coordinates, so n_bar matches the budget identically. On this task the
+        # free parameterization happened to respect the budget anyway and the two agree
+        # to 1e-6, but the shell form removes the possibility.
+        starts = list(default_shell_starts(extra=3))
 
         baseline = optimize_gaussian_baseline(
             score=lambda rho, e=eta: target_state_fidelity(apply_loss(rho, e), target),
@@ -124,8 +121,6 @@ def sweep_target(name: str, target: np.ndarray, grid) -> list[dict]:
             n_budget=budget,
             starts=starts,
         )
-        warm = baseline.params.to_vector()
-
         rows.append(
             {
                 "eta": eta,

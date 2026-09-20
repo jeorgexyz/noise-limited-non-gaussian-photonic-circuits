@@ -141,8 +141,8 @@ footer{padding:36px 0 56px; font-size:.85rem; color:var(--muted); text-align:cen
     <div class="status">
       <b>Status.</b> The simulation core is validated against closed forms, and the
       optimized resource-matched Gaussian baseline is in place, so the advantage $A$ is
-      measured rather than assumed. The depth axis, a second task score and the collapse
-      surfaces are in progress. Numbers below are reported with the brackets their
+      measured rather than assumed, on two operational tasks. The depth axis and the
+      collapse surfaces are in progress. Numbers below are reported with the brackets their
       numerics support.
     </div>
   </div>
@@ -220,7 +220,7 @@ footer{padding:36px 0 56px; font-size:.85rem; color:var(--muted); text-align:cen
         <tr><td>max |simulated − analytic| over $\eta \in [0,1]$</td><td class="num">2.8 × 10⁻⁵</td></tr>
         <tr><td>Negativity threshold, located by bisection</td><td class="num">η = 0.50502 (analytic 0.5)</td></tr>
         <tr><td>Worst Gaussian-state $W_{\log}$ (must be 0)</td><td class="num">0.0</td></tr>
-        <tr><td>Test suite</td><td class="num">283 passing</td></tr>
+        <tr><td>Test suite</td><td class="num">351 passing</td></tr>
       </tbody>
     </table>
 
@@ -356,6 +356,70 @@ angle$ carries the <em>least</em> negativity and is the most robust on the
 
 <section>
   <div class="wrap">
+    <h2>A second task reverses every verdict</h2>
+    <p>
+      The same resources, the same baseline construction, a different task: estimate a
+      phase imprinted by $U(	heta)=e^{-i	heta \hat n}$, scored by the classical Fisher
+      information under homodyne detection. This tests whether the decoupling above is a
+      property of one task or of the resources.
+    </p>
+
+    <figure>
+      <img src="assets/06_phase_estimation.png"
+           alt="Three panels: Fisher information for probes and their optimized Gaussian baselines against transmissivity, with Fock probes flat at zero; the advantage negative everywhere; and a symlog bar chart showing preparation advantage positive and phase-estimation advantage negative for all three resources.">
+      <figcaption>
+        <strong>Left:</strong> both Fock probes sit at exactly zero Fisher information at
+        every transmissivity. <strong>Centre:</strong> the advantage is negative
+        throughout. <strong>Right:</strong> the same three resources, the two tasks, on a
+        symmetric-log axis — every sign flips.
+      </figcaption>
+    </figure>
+
+    <table>
+      <thead><tr><th>Resource</th><th>$A$ preparation ($\eta=1$)</th><th>$A_F$ phase estimation ($\eta=1$)</th></tr></thead>
+      <tbody>
+        <tr><td>Fock $|1angle$</td><td class="num">+0.52</td><td class="num">−16.00</td></tr>
+        <tr><td>Fock $|2angle$</td><td class="num">+0.62</td><td class="num">−47.98</td></tr>
+        <tr><td>cat α=1.5</td><td class="num">+0.25</td><td class="num">−49.43</td></tr>
+      </tbody>
+    </table>
+
+    <p>
+      The mechanism is exact rather than numerical. A Fock state is invariant under phase
+      rotation, $e^{-i	heta \hat n}|nangle\langle n|e^{i	heta \hat n} =
+      |nangle\langle n|$, so it carries no phase information under <em>any</em>
+      measurement and its Fisher information is identically zero. The resource that wins
+      state preparation most decisively is provably the worst possible probe here, and
+      the ordering is not even consistently reversed: Fock $|2angle$ is best at the
+      first task and worst at the second.
+    </p>
+
+    <div class="cards">
+      <div class="card">
+        <h4>The baseline has a closed form here</h4>
+        <p>For squeezed vacuum $\mathrm{Var}(n) = 2ar n(1+ar n)$, so
+        $\mathrm{QFI} = 8ar n(1+ar n)$ and homodyne saturates it. The optimizer
+        recovers exactly 16.0000 at $ar n = 1$, with the optimum at pure squeezing and
+        no displacement.</p>
+      </div>
+      <div class="card">
+        <h4>Energy matching must be exact</h4>
+        <p>Fisher information grows monotonically with energy, so a soft-penalty baseline
+        overspent its budget by ~15% rather than matching it. The baseline now uses
+        energy-shell coordinates where the constraint holds identically.</p>
+      </div>
+    </div>
+
+    <p>
+      Taken with the preparation results, this says <em>operational usefulness is not a
+      single axis</em>. A resource measure that ranks these three resources predicts
+      neither task.
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
     <h2>Noise axes are resource-specific</h2>
     <p>
       Phase diffusion averages $U(\phi)=e^{-i\phi \hat n}$ over $\phi \sim N(0,\sigma^2)$,
@@ -427,7 +491,7 @@ python experiments/01_loss_threshold/run.py</code></pre>
       <li>Resource-strength sweeps <span class="tag">γ*, ξ*</span></li>
       <li>Resource placement at fixed depth <span class="tag">k*</span></li>
       <li class="done">Optimized resource-matched Gaussian baselines <span class="tag">A</span></li>
-      <li>Operational task scores: state preparation, phase estimation</li>
+      <li class="done">Operational task scores: state preparation, phase estimation</li>
       <li>Robustness-optimized circuit design, then multimode scaling</li>
     </ol>
   </div>

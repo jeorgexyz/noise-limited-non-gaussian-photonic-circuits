@@ -12,12 +12,12 @@ advantage of a non-Gaussian photonic circuit over a resource-matched Gaussian on
 ## Status
 
 The simulation core is built and validated against closed forms. The resource-decay
-study and the optimized Gaussian baseline are complete. The depth sweep, the second task
-score and the collapse surfaces are in progress.
+study, the optimized Gaussian baseline and two operational task scores are complete.
+The depth sweep and the collapse surfaces are in progress.
 
 | | |
 | --- | --- |
-| Test suite | 283 passing |
+| Test suite | 351 passing |
 | Validation vs. closed form | max error 2.8 × 10⁻⁵ |
 | Backends | pure-NumPy reference + Piquasso 8.0.1, cross-validated |
 | Scope | 1–4 modes, mixed-state Fock representation |
@@ -79,9 +79,9 @@ arbitrary one.
 
 | resource | `W_log` at `eta=1` | negativity threshold | advantage threshold (`A > 0.01`) | Gaussian wins |
 | --- | --- | --- | --- | --- |
-| Fock \|1> | 0.3551 | 0.5000 | `eta` in [0.10, 0.15] | never (min `A` = +0.005) |
-| Fock \|2> | 0.5476 | 0.5005 | `eta` in [0.40, 0.45] | `eta <= 0.35` (min `A` = -0.023) |
-| cat α=1.5 | 0.3927 | 0.5004 | `eta` in [0.40, 0.45] | `eta <= 0.35` (min `A` = -0.015) |
+| Fock \|1> | 0.3551 | 0.5000 | `eta` in [0.10, 0.15] | never (min `A` = +0.007) |
+| Fock \|2> | 0.5476 | 0.5005 | `eta` in [0.40, 0.45] | `eta <= 0.35` (min `A` = -0.022) |
+| cat α=1.5 | 0.3927 | 0.5004 | `eta` in [0.40, 0.45] | `eta <= 0.35` (min `A` = -0.014) |
 
 Two consequences. The negativity threshold is essentially the same (≈ 1/2) for all three
 resources while the operational threshold differs by a factor of about three, so the
@@ -100,6 +100,31 @@ Bounding the claim: the target is a state the non-Gaussian circuit holds exactly
 makes `A` an upper bound, so `A < 0` is the robust direction and `A > 0` carries the
 convergence evidence (converged fraction and start spread are recorded per point).
 
+**A second task reverses every verdict.** Phase estimation, scored by classical Fisher
+information under homodyne detection, run on the same resources against the same
+baseline construction:
+
+| resource | `A` preparation (`eta=1`) | `A_F` phase estimation (`eta=1`) |
+| --- | --- | --- |
+| Fock \|1> | **+0.52** | **−16.00** |
+| Fock \|2> | **+0.62** | **−47.98** |
+| cat α=1.5 | **+0.25** | **−49.43** |
+
+The sign flips for every resource, at every noise level, and the ordering is not even
+reversed consistently — Fock \|2> is best at preparation and worst at phase estimation.
+The mechanism is exact rather than numerical: `exp(-i θ n) |n><n| exp(i θ n) = |n><n|`,
+so a Fock state carries no phase information under *any* measurement and its Fisher
+information is identically zero. The resource that wins preparation most decisively is
+provably the worst possible probe here.
+
+The optimized baseline for this task has a closed form. For squeezed vacuum
+`Var(n) = 2 n̄(1 + n̄)`, so `QFI = 8 n̄(1 + n̄)`, and homodyne saturates it; the optimizer
+recovers exactly 16.0000 at `n̄ = 1` and 47.98 against 48 at `n̄ = 2`, with the optimum
+at pure squeezing and no displacement.
+
+So "operational usefulness" is not one axis. A resource measure that ranks these three
+resources tells you nothing about either task.
+
 **Noise axes are resource-specific.** Phase diffusion acts as
 `rho_mn -> rho_mn exp(-sigma^2 (m-n)^2 / 2)`, so a Fock state is a fixed point at any
 `sigma`, while cat-state fringes are removed. It also commutes exactly with pure loss, so
@@ -108,6 +133,10 @@ a layered circuit of those two alone reduces to a single `(eta^D, sigma sqrt(D))
 
 ## Numerical caveats quantified
 
+- **A soft energy constraint is unsafe for a monotone score.** Fisher information grows
+  with energy, so a penalty-based baseline overspent its budget by ~15% rather than
+  matching it. The baseline now uses exact energy-shell coordinates, where
+  `n̄ = |α|² + sinh²r` equals the budget identically.
 - **Truncation induces negativity in Gaussian states.** By Hudson's theorem a truncated,
   renormalised squeezed ket is non-Gaussian and carries numerical negativity; at `r=1.0`,
   cutoff 20 this reaches `W_log = 0.063`, 18% of a real single photon's 0.355.
@@ -126,7 +155,8 @@ pip install -e ".[sim]"   # adds the Piquasso backend
 pytest tests/ -q
 python experiments/00_validation/run_validation.py
 python experiments/01_loss_threshold/run.py
-python experiments/05_gaussian_baseline/run.py   # ~10 min
+python experiments/05_gaussian_baseline/run.py
+python experiments/06_phase_estimation/run.py    # ~10 min
 ```
 
 Piquasso tests skip automatically if the `sim` extra is absent.
@@ -136,7 +166,7 @@ Piquasso tests skip automatically if the `sim` extra is absent.
 ```
 src/ngphotonic/     backends, noise channels, metrics, circuits, analysis
 experiments/        reproducible runs; each writes JSON + a figure
-tests/              283 tests, closed-form and cross-backend
+tests/              351 tests, closed-form and cross-backend
 docs/               project page (GitHub Pages)
 figures/            curated figures referenced by the docs
 results/            raw per-run output (gitignored)

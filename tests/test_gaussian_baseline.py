@@ -39,6 +39,7 @@ from ngphotonic.metrics.operational import (
 )
 from ngphotonic.noise.loss import apply_loss
 from ngphotonic.optimization.gaussian_baseline import (
+    default_shell_starts,
     default_starts,
     optimize_gaussian_baseline,
 )
@@ -64,9 +65,13 @@ def _quiet_truncation_warnings():
         yield
 
 
-def _fast_starts(budget: float):
-    """Smaller start set to keep the suite quick; the full set is used in slow tests."""
-    return default_starts(budget, extra=3)
+def _fast_starts(budget: float = 0.0):
+    """Smaller start set to keep the suite quick; the full set is used in slow tests.
+
+    Shell coordinates, matching the optimizer's default parameterization. ``budget`` is
+    accepted and ignored so callers read the same as before.
+    """
+    return default_shell_starts(extra=3)
 
 
 # --------------------------------------------------------------------------------------
@@ -217,7 +222,7 @@ def test_optimizer_beats_the_best_coherent_state() -> None:
     target = fock_ket(1, CUTOFF)
     result = optimize_gaussian_baseline(
         score=lambda rho: target_state_fidelity(rho, target),
-        cutoff=CUTOFF, n_budget=1.0, starts=_fast_starts(1.0),
+        cutoff=CUTOFF, n_budget=1.0, starts=_fast_starts(),
     )
     assert result.score > BEST_COHERENT_FIDELITY_TO_FOCK1 + 0.05
 
@@ -234,14 +239,27 @@ def test_optimizer_is_reproducible_across_seeds(seed: int) -> None:
     assert np.isclose(result.score, MAX_GAUSSIAN_FIDELITY_TO_FOCK1, atol=1e-6)
 
 
-def test_energy_constraint_is_respected() -> None:
-    for budget in (0.5, 1.0, 2.0):
-        result = optimize_gaussian_baseline(
-            score=lambda rho: target_state_fidelity(rho, fock_ket(1, CUTOFF)),
-            cutoff=CUTOFF, n_budget=budget, energy_tolerance=0.02,
-            starts=_fast_starts(budget),
-        )
-        assert abs(result.mean_photon_number - budget) < 0.05, (budget, result.mean_photon_number)
+@pytest.mark.parametrize("budget", [0.5, 1.0, 2.0])
+def test_shell_parameterization_matches_energy_identically(budget: float) -> None:
+    """Exact, not within a tolerance band: the constraint holds by construction."""
+    result = optimize_gaussian_baseline(
+        score=lambda rho: target_state_fidelity(rho, fock_ket(1, CUTOFF)),
+        cutoff=CUTOFF, n_budget=budget, starts=_fast_starts(),
+    )
+    assert abs(result.mean_photon_number - budget) < 1e-9
+
+
+@pytest.mark.parametrize("budget", [0.5, 1.0, 2.0])
+def test_free_parameterization_stays_within_its_tolerance_here(budget: float) -> None:
+    """On the preparation task the soft penalty is adequate, since fidelity does not
+    grow monotonically with energy. It is not adequate for phase estimation; see
+    test_homodyne.test_free_parameterization_overspends_on_a_monotone_score."""
+    result = optimize_gaussian_baseline(
+        score=lambda rho: target_state_fidelity(rho, fock_ket(1, CUTOFF)),
+        cutoff=CUTOFF, n_budget=budget, energy_tolerance=0.02,
+        starts=default_starts(budget, extra=3), parameterization="free",
+    )
+    assert abs(result.mean_photon_number - budget) < 0.05
 
 
 def test_multi_start_is_doing_work() -> None:
@@ -263,7 +281,7 @@ def test_baseline_is_a_lower_bound_on_the_gaussian_optimum() -> None:
     target = fock_ket(1, CUTOFF)
     result = optimize_gaussian_baseline(
         score=lambda rho: target_state_fidelity(rho, target),
-        cutoff=CUTOFF, n_budget=1.0, starts=_fast_starts(1.0),
+        cutoff=CUTOFF, n_budget=1.0, starts=_fast_starts(),
     )
     for candidate in (
         GaussianParams(alpha_re=1.0),
@@ -289,7 +307,7 @@ def test_advantage_is_positive_without_noise() -> None:
     target = fock_ket(1, CUTOFF)
     baseline = optimize_gaussian_baseline(
         score=lambda rho: target_state_fidelity(rho, target),
-        cutoff=CUTOFF, n_budget=1.0, starts=_fast_starts(1.0),
+        cutoff=CUTOFF, n_budget=1.0, starts=_fast_starts(),
     )
     assert 1.0 - baseline.score > 0.5
 
@@ -315,7 +333,7 @@ def test_advantage_survives_below_the_negativity_threshold() -> None:
 
     baseline = optimize_gaussian_baseline(
         score=lambda rho: target_state_fidelity(apply_loss(rho, eta), target),
-        cutoff=CUTOFF, n_budget=1.0, starts=_fast_starts(1.0),
+        cutoff=CUTOFF, n_budget=1.0, starts=_fast_starts(),
     )
     advantage = target_state_fidelity(noisy, target) - baseline.score
     assert advantage > 0.01, f"expected surviving advantage, got {advantage}"
