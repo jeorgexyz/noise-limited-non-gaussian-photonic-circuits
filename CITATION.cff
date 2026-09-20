@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "Noise-Limited Non-Gaussian Photonic Circuits"
+abstract: >-
+  Simulation and analysis code for locating the boundary at which loss,
+  dephasing, circuit depth and non-Gaussian resource placement end the
+  operational advantage of a non-Gaussian photonic circuit over a
+  resource-matched Gaussian one.
+type: software
+authors:
+  - family-names: Anderson
+    given-names: J. D.
+repository-code: "https://github.com/jeorgexyz/noise-limited-non-gaussian-photonic-circuits"
+license: MIT
+version: 0.2.0
+date-released: 2026-09-20
+keywords:
+  - quantum optics
+  - continuous-variable quantum computing
+  - non-Gaussianity
+  - Wigner negativity
+  - photonic quantum computing

@@ -272,7 +272,7 @@ def main() -> int:
     print(f"  max |simulated - analytic|      {sweep['max_abs_error']:.3e}")
     print(f"  negativity threshold, measured  eta = {measured_threshold:.6f} "
           f"(error {threshold['error_vs_analytic']:.1e})")
-    print(f"  negativity threshold, analytic  eta = 0.5")
+    print("  negativity threshold, analytic  eta = 0.5")
     print(f"  worst Gaussian-state W_log      {worst_gaussian:.3e}  (must be ~0)")
     print(f"  runtime                         {report['summary']['runtime_seconds']:.1f}s")
     print("=" * 68)

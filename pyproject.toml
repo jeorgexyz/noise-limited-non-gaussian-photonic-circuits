@@ -1,6 +1,6 @@
 [project]
 name = "ngphotonic"
-version = "0.1.0"
+version = "0.2.0"
 description = "Noise-induced collapse surfaces for operational non-Gaussianity in finite-depth photonic circuits"
 readme = "README.md"
 requires-python = ">=3.12"

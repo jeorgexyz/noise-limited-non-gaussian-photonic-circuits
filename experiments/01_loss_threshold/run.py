@@ -42,7 +42,6 @@ from ngphotonic.backends.reference import (  # noqa: E402
     cat_ket,
     fock_dm,
     kerr_unitary,
-    mean_photon_number,
     squeezed_ket,
     tail_weight,
     to_dm,
@@ -237,11 +236,11 @@ def main() -> int:
         print(f"  {name:20s} {sweeps[name][-1]['w_log']:13.4f} "
               f"{t['eta_star']:8.4f} {width:8.4f} {tail_weight(rho):9.1e}")
 
-    print(f"\n  control: Fock |1> analytic threshold is eta = 0.5 as epsilon -> 0")
+    print("\n  control: Fock |1> analytic threshold is eta = 0.5 as epsilon -> 0")
     print(f"           measured at epsilon = {EPSILON:g}: eta* = {control['eta_star']:.4f}")
     span = [epsilon_scan['Fock |1>'][i]['eta_star'] for i in (0, -1)]
     print(f"           and it moves {span[0]:.3f} -> {span[1]:.3f} across the epsilon scan,")
-    print(f"           which is why eta* is reported with epsilon, never alone.")
+    print("           which is why eta* is reported with epsilon, never alone.")
     print(f"\n  runtime {report['runtime_seconds']:.1f}s")
     print("=" * 74)
     print(f"Wrote {OUT_DIR} and {FIGURE_PATH.name}")
