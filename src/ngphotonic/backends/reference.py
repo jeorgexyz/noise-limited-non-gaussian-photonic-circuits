@@ -23,6 +23,7 @@ import warnings
 
 import numpy as np
 from scipy.linalg import expm
+from scipy.special import gammaln
 
 __all__ = [
     "annihilation",
@@ -41,6 +42,12 @@ __all__ = [
     "mean_photon_number",
     "fidelity",
     "tail_weight",
+    "position",
+    "momentum",
+    "kerr_unitary",
+    "cubic_phase_unitary",
+    "squeeze_unitary",
+    "apply_unitary",
 ]
 
 
@@ -64,6 +71,67 @@ def number(cutoff: int) -> np.ndarray:
     """Number operator ``n = a^dag a``."""
     _check_cutoff(cutoff)
     return np.diag(np.arange(cutoff, dtype=float))
+
+
+def position(cutoff: int) -> np.ndarray:
+    """Position quadrature ``x = (a + a^dag) / sqrt(2)`` (hbar = 1)."""
+    a = annihilation(cutoff)
+    return (a + a.conj().T) / np.sqrt(2.0)
+
+
+def momentum(cutoff: int) -> np.ndarray:
+    """Momentum quadrature ``p = (a - a^dag) / (i sqrt(2))`` (hbar = 1)."""
+    a = annihilation(cutoff)
+    return (a - a.conj().T) / (1j * np.sqrt(2.0))
+
+
+# --------------------------------------------------------------------------------------
+# Non-Gaussian gates
+# --------------------------------------------------------------------------------------
+
+
+def kerr_unitary(xi: float, cutoff: int) -> np.ndarray:
+    """Kerr gate ``U = exp(i xi n^2)``.
+
+    Diagonal in the Fock basis, so it is exact at any cutoff and introduces no
+    truncation error of its own -- which makes it the cleanest non-Gaussian gate to
+    validate a backend against.
+    """
+    _check_cutoff(cutoff)
+    return np.diag(np.exp(1j * xi * np.arange(cutoff) ** 2)).astype(complex)
+
+
+def cubic_phase_unitary(gamma: float, cutoff: int) -> np.ndarray:
+    """Cubic phase gate ``U = exp(i gamma x^3 / 3)`` at ``hbar = 1``.
+
+    Matches Piquasso's ``CubicPhase(gamma) = exp(i x^3 gamma / (3 hbar))`` when its
+    ``Config(hbar=1.0)`` is used.
+
+    Unlike the Kerr gate this is *not* diagonal, and ``x^3`` couples each Fock level to
+    its neighbours three rungs away, so the truncated ``x`` operator misrepresents the
+    top of the ladder badly. Piquasso's own documentation warns that the gate "requires
+    a high cutoff"; :func:`tail_weight` on the output is the way to check.
+    """
+    _check_cutoff(cutoff)
+    x = position(cutoff)
+    return expm(1j * gamma * (x @ x @ x) / 3.0)
+
+
+def squeeze_unitary(r: float, phi: float, cutoff: int) -> np.ndarray:
+    """Squeezing ``S(z) = exp((conj(z) a^2 - z a^dag^2) / 2)`` with ``z = r e^{i phi}``.
+
+    Same convention as Piquasso's ``Squeezing(r, phi)``.
+    """
+    _check_cutoff(cutoff)
+    a = annihilation(cutoff)
+    adag = creation(cutoff)
+    z = r * np.exp(1j * phi)
+    return expm(0.5 * (np.conj(z) * (a @ a) - z * (adag @ adag)))
+
+
+def apply_unitary(rho: np.ndarray, unitary: np.ndarray) -> np.ndarray:
+    """``U rho U^dag``."""
+    return unitary @ rho @ unitary.conj().T
 
 
 # --------------------------------------------------------------------------------------
@@ -116,32 +184,46 @@ def coherent_ket(alpha: complex, cutoff: int) -> np.ndarray:
 def squeezed_ket(r: float, phi: float = 0.0, cutoff: int = 30) -> np.ndarray:
     """Squeezed vacuum ``S(r e^{i phi}) |0>``.
 
-    Uses the matrix exponential of the squeeze generator, which is more robust against
-    my own algebra errors than the closed-form even-Fock series. The generator is
-    truncated before exponentiation, so ``S`` is only approximately unitary on the
-    truncated space.
+    Built from the closed-form even-Fock series
 
-    That truncation has a consequence worth stating plainly, because it can fabricate
-    exactly the resource this project measures. By Hudson's theorem a *pure* state has
-    a non-negative Wigner function if and only if it is Gaussian. A truncated,
-    renormalised squeezed ket is not Gaussian, so it necessarily carries some Wigner
-    negativity -- negativity that is a numerical artefact, not physics. Measured
-    spurious ``W_log`` for squeezed vacuum:
+        ``|z> = (1/sqrt(cosh r)) sum_m [sqrt((2m)!) / (2^m m!)] (-e^{i phi} tanh r)^m |2m>``
 
-        r = 0.6:  cutoff 20 -> 2.0e-3,  40 -> 1.0e-6,  60 -> 0
-        r = 1.0:  cutoff 20 -> 9.4e-2,  40 -> 4.8e-3,  80 -> 0
+    An earlier version exponentiated the truncated squeeze generator instead. The
+    Piquasso cross-validation showed that to be the weaker of the two: against this
+    exact series, at cutoff 12 and r = 0.4, Piquasso erred by 2.0e-06 and the
+    ``expm`` route by 4.4e-04. Two backends disagreeing is how that surfaced, which is
+    the argument for keeping both.
 
-    At ``r = 1.0`` and cutoff 20 that artefact is 26% of the genuine ``W_log = 0.355``
-    of a single photon. Any negativity claimed by this project must sit well above the
-    floor set by :func:`tail_weight`; the warning below fires when it might not.
+    Truncation still bites, and in a way that matters here. By Hudson's theorem a
+    *pure* state has a non-negative Wigner function if and only if it is Gaussian. A
+    truncated, renormalised squeezed ket is not Gaussian, so it necessarily carries
+    Wigner negativity that is a numerical artefact rather than physics. Measured
+    spurious ``W_log``:
+
+        r = 0.6:  cutoff 20 -> 1.4e-3,  40 -> 0
+        r = 0.8:  cutoff 20 -> 1.5e-2,  40 -> 1.2e-4,  60 -> 0
+        r = 1.0:  cutoff 20 -> 6.3e-2,  40 -> 2.7e-3,  60 -> 0
+
+    At ``r = 1.0`` and cutoff 20 that artefact is 18% of the genuine ``W_log = 0.355``
+    of a single photon -- large enough to read as a physical result. (The figure was
+    26% while this function exponentiated a truncated generator; switching to the exact
+    series removed the extra error but not the underlying truncation floor, which is
+    irreducible at finite cutoff.)
+
+    Any negativity this project reports must sit well clear of that floor; the warning
+    below fires when :func:`tail_weight` says it might not.
     """
     _check_cutoff(cutoff)
-    a = annihilation(cutoff)
-    adag = creation(cutoff)
-    z = r * np.exp(1j * phi)
-    generator = 0.5 * (np.conj(z) * (a @ a) - z * (adag @ adag))
-    ket = _normalise(expm(generator) @ vacuum_ket(cutoff))
+    ket = np.zeros(cutoff, dtype=complex)
 
+    m = np.arange((cutoff + 1) // 2)
+    even = 2 * m
+    # log sqrt((2m)!) - m log 2 - log m!, via lgamma for stability at large m.
+    log_coeff = 0.5 * gammaln(even + 1) - m * np.log(2.0) - gammaln(m + 1)
+    ket[even] = np.exp(log_coeff) * (-np.exp(1j * phi) * np.tanh(r)) ** m
+    ket /= np.sqrt(np.cosh(r))
+
+    ket = _normalise(ket)
     tail = tail_weight(ket)
     if tail > 1e-10:
         warnings.warn(

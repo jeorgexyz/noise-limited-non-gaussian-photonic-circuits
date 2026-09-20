@@ -60,7 +60,7 @@ once. Measured against it:
 | max \|simulated - analytic\| over `eta` in [0, 1] | `2.8e-05` |
 | negativity threshold, located by bisection | `eta = 0.50502` (analytic `0.5`) |
 | worst Gaussian-state `W_log` (must be 0) | `0.0` |
-| tests passing | 160 |
+| tests passing | 202 |
 
 The middle panel is the most informative: the residual sits at machine precision
 (`1e-16`) below `eta = 1/2`, where the state is *exactly* Wigner-positive and the
@@ -78,11 +78,12 @@ squeezed ket is not Gaussian, so it necessarily shows Wigner negativity that is 
 numerics. Measured spurious `W_log` for squeezed vacuum:
 
 ```
-r = 0.6:  cutoff 20 -> 2.0e-3,  40 -> 1.0e-6,  60 -> 0
-r = 1.0:  cutoff 20 -> 9.4e-2,  40 -> 4.8e-3,  80 -> 0
+r = 0.6:  cutoff 20 -> 1.4e-3,  40 -> 0
+r = 0.8:  cutoff 20 -> 1.5e-2,  40 -> 1.2e-4,  60 -> 0
+r = 1.0:  cutoff 20 -> 6.3e-2,  40 -> 2.7e-3,  60 -> 0
 ```
 
-At `r = 1.0` and cutoff 20 a **Gaussian** state reports `W_log = 0.094` -- about 26% of
+At `r = 1.0` and cutoff 20 a **Gaussian** state reports `W_log = 0.063` -- about 18% of
 the genuine `0.355` of a single photon. That is large enough to be mistaken for a
 physical finding. `squeezed_ket` now warns when its tail weight is too large, and the
 effect is pinned by a test.
@@ -101,17 +102,72 @@ Below ratio 8 the routine now warns rather than returning confident nonsense.
 Neither failure is exotic. Both produce smooth, plausible curves. Both are exactly the
 kind of thing the V1 ansatz could never have surfaced, because V1 never built a state.
 
+### Two backends, and when agreement means nothing
+
+`backends/reference.py` is pure NumPy, written to be obviously correct. `backends/piquasso.py`
+is the production path (Piquasso 8.0.1). They are held against each other on every circuit
+both can express, and that has already paid off in both directions.
+
+**It caught a defect in this project's own code.** Against the exact even-Fock series, at
+cutoff 12 and `r = 0.4`, Piquasso's squeezing erred by `2.0e-06` and the reference's by
+`4.4e-04` -- the reference was 200x worse, because it exponentiated a truncated squeeze
+generator. It now uses the closed-form series. The knock-on effect was visible immediately:
+the spurious-negativity artefact at `r = 1.0`, cutoff 20 dropped from `W_log = 0.094` to
+`0.063`, because part of what looked like truncation was really the `expm`.
+
+**It caught an upstream edge case.** Piquasso's `Attenuator` forms `tan(theta)**(2k)`
+internally, so as `eta -> 0` the angle approaches `pi/2` and the density matrix comes back
+as NaN. It is cutoff-dependent -- NaN at `eta = 0` from cutoff 12, at `eta = 1e-12` by
+cutoff 30, clean at `eta >= 1e-6` everywhere tested -- which is the dangerous kind: a coarse
+sweep passes while a finer one silently poisons a few grid points. The backend now refuses
+`eta < 1e-6` and points at the reference, which is exact down to `eta = 0`, and `run()`
+rejects any non-finite output rather than letting a NaN reach an aggregate.
+
+**And it produced the most useful negative result so far.** For the cubic phase gate the two
+backends agree to `1e-17` at cutoff 20 -- and both are wrong by `9.6e-05`:
+
+| γ | cutoff | \|pq − ref\| | \|ref − converged\| | \|pq − converged\| |
+| --- | --- | --- | --- | --- |
+| 0.3 | 20 | 5.6e-17 | 9.6e-05 | 9.6e-05 |
+| 0.3 | 40 | 5.6e-17 | 6.2e-09 | 6.2e-09 |
+| 0.3 | 60 | 4.2e-17 | 6.5e-13 | 6.5e-13 |
+
+The last two columns are equal to every digit. Both backends exponentiate the same truncated
+`x^3`, so they make the *same* error and their agreement carries **zero** independent
+validation information. Cross-backend agreement is only evidence when the backends compute
+differently; where they don't, cutoff convergence is the only real check. This is pinned by
+a test so it cannot quietly stop being true.
+
+Conventions pinned against Piquasso 8.0.1, all verified numerically rather than read off:
+
+| quantity | Piquasso | note |
+| --- | --- | --- |
+| `hbar` | defaults to **2.0** | forced to 1.0; it defines `x`, hence the cubic phase gate |
+| `Attenuator(theta)` | `eta = cos^2(theta)` | `FockSimulator` rejects Piquasso's `Loss` |
+| `Kerr(xi)` | `exp(i xi n^2)` | diagonal, exact at any cutoff |
+| `CubicPhase(gamma)` | `exp(i x^3 gamma / (3 hbar))` | correlated with reference; see above |
+| `Squeezing(r, phi)` | `exp((conj(z) a^2 - z a^dag^2)/2)` | same convention as reference |
+
+Multimode note: Piquasso's cutoff bounds *total* particle number, not per-mode dimension, so
+multimode cutoffs are not directly comparable to a per-mode truncation. Single-mode work is
+unaffected.
+
 ### Running it
 
 ```bash
-python -m pytest tests/ -q                          # 160 tests, ~48s
+pip install -e .            # reference backend only, no extras needed
+pip install -e ".[sim]"     # adds the Piquasso backend
+
+python -m pytest tests/ -q                          # 202 tests, ~90s
 python experiments/00_validation/run_validation.py  # regenerates the figure above
 ```
 
+The Piquasso tests skip automatically if the `sim` extra is absent.
+
 ### Not yet done
 
-Piquasso backend, thermal/phase/squeezing-error channels, cubic-phase and Kerr gates,
-the optimized matched Gaussian baseline, and every sweep. See `RESEARCH_PLAN.md`.
+Thermal, phase-diffusion and squeezing-error channels; the optimized matched Gaussian
+baseline; the operational task scores; and every sweep. See `RESEARCH_PLAN.md`.
 
 ## V1 Figures
 

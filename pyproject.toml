@@ -24,7 +24,7 @@ dependencies = [
 
 [project.optional-dependencies]
 sim = [
-    "piquasso[jax]>=5.0",
+    "piquasso[jax]>=8.0",  # conventions pinned against 8.0.1; see backends/piquasso.py
     "jax>=0.4",
 ]
 data = [

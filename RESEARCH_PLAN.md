@@ -176,8 +176,11 @@ non-Gaussianity" collapse at different depths.
 
 ## 10. Experimental programme
 
-1. Validate: analytic single-photon loss, noiseless Gaussian circuits, normalization,
-   cutoff convergence
+1. ~~Validate: analytic single-photon loss, noiseless Gaussian circuits, normalization,
+   cutoff convergence~~ **done** -- see the V2 validation section of README.md. Also
+   established: the Piquasso backend and its cross-validation against the reference,
+   and the standing caveat that cross-backend agreement is not evidence where both
+   backends share an algorithm (cubic phase).
 2. Non-Gaussian resource decay under pure loss
 3. Depth sweep, identify `D*`
 4. Collapse maps: `(D, eta)`, then `(D, eta, n_th)`

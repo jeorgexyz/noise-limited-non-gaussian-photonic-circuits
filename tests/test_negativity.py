@@ -179,7 +179,7 @@ def test_truncation_manufactures_negativity_in_gaussian_states() -> None:
     artefact = wigner_log_negativity(wigner(starved, X, P), x, p)
 
     assert artefact > 0.05
-    assert artefact > 0.2 * genuine  # comparable to a real resource
+    assert artefact > 0.15 * genuine  # comparable to a real resource
 
     # Enough headroom and the artefact disappears.
     converged = to_dm(squeezed_ket(1.0, 0.0, 100))
