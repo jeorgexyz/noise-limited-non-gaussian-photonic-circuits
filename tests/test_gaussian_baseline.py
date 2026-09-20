@@ -45,8 +45,12 @@ from ngphotonic.optimization.gaussian_baseline import (
 
 CUTOFF = 30
 
-# Maximum fidelity between a single photon and any energy-matched Gaussian state,
-# confirmed by an independent 2-D brute-force grid on the energy shell to 2.4e-09.
+# Maximum fidelity between a single photon and any energy-matched Gaussian state.
+# Confirmed twice independently of the optimizer: a 2-D brute-force grid on the energy
+# shell, using rotational symmetry to fix the displacement on the real axis, agrees to
+# 2.4e-09; a full 4-parameter scan that assumes no symmetry agrees to 1.4e-06, limited
+# by its coarser grid. The second run also confirms the symmetry reduction used by the
+# first.
 MAX_GAUSSIAN_FIDELITY_TO_FOCK1 = 0.47788941
 
 # Best *coherent* state only: |<1|alpha>|^2 = |alpha|^2 exp(-|alpha|^2), max 1/e.
@@ -183,8 +187,9 @@ def test_optimizer_matches_brute_force_ceiling() -> None:
     """The headline baseline number, against an independent grid search.
 
     The maximum fidelity between a single photon and an energy-matched Gaussian state is
-    0.47788941, located by a 2-D brute-force scan over the energy shell. The optimizer
-    must reproduce it.
+    0.47788941, located by brute-force scans that do not use the optimizer at all -- once
+    with a symmetry-reduced 2-D grid and once with a full 4-parameter grid that assumes
+    no symmetry. The optimizer must reproduce it.
     """
     target = fock_ket(1, CUTOFF)
     result = optimize_gaussian_baseline(
