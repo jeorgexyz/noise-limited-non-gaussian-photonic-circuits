@@ -1,5 +1,9 @@
 # Noise-Limited Non-Gaussian Photonic Circuits
 
+[![tests](https://github.com/jeorgexyz/noise-limited-non-gaussian-photonic-circuits/actions/workflows/tests.yml/badge.svg)](https://github.com/jeorgexyz/noise-limited-non-gaussian-photonic-circuits/actions/workflows/tests.yml)
+[![python](https://img.shields.io/badge/python-3.12-blue)](pyproject.toml)
+[![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+
 Where do loss, dephasing, circuit depth and resource placement end the operational
 advantage of a non-Gaussian photonic circuit over a resource-matched Gaussian one?
 
