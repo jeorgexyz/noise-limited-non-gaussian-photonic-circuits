@@ -181,13 +181,18 @@ non-Gaussianity" collapse at different depths.
    established: the Piquasso backend and its cross-validation against the reference,
    and the standing caveat that cross-backend agreement is not evidence where both
    backends share an algorithm (cubic phase).
-2. Non-Gaussian resource decay under pure loss
+2. ~~Non-Gaussian resource decay under pure loss~~ **done** -- experiment 01.
+   Critical transmissivity per resource, reported with the survival threshold epsilon
+   it depends on.
 3. Depth sweep, identify `D*`
 4. Collapse maps: `(D, eta)`, then `(D, eta, n_th)`
 5. Resource-strength sweep: cubic-phase `gamma`, Kerr `xi`, cat amplitude `alpha`, `r`
 6. Early vs. middle vs. late insertion of the non-Gaussian resource
 7. One strong non-Gaussian layer vs. several weak ones
-8. Optimize Gaussian baselines
+8. ~~Optimize Gaussian baselines~~ **done for the single-mode preparation task** --
+   experiment 05. Energy-matched displaced-squeezed family, multi-start Nelder-Mead,
+   validated against a brute-force grid. Taken out of order because it is what makes
+   `A(D, nu)` well defined; the depth sweep (step 3) builds on it.
 9. Optimize the non-Gaussian circuit for **robustness** rather than ideal performance
 10. Scale 1 -> 2 -> 3-4 modes
 

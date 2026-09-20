@@ -139,10 +139,11 @@ footer{padding:36px 0 56px; font-size:.85rem; color:var(--muted); text-align:cen
       <span class="btn disabled" title="Available once the V2 programme is complete">PDF report — in preparation</span>
     </div>
     <div class="status">
-      <b>Status.</b> The simulation core is built and validated against closed forms; the
-      resource-decay study is running. The optimized Gaussian baseline, the operational
-      task scores and the collapse surfaces are in progress. Numbers below are reported
-      with the brackets their numerics support.
+      <b>Status.</b> The simulation core is validated against closed forms, and the
+      optimized resource-matched Gaussian baseline is in place, so the advantage $A$ is
+      measured rather than assumed. The depth axis, a second task score and the collapse
+      surfaces are in progress. Numbers below are reported with the brackets their
+      numerics support.
     </div>
   </div>
 </header>
@@ -219,7 +220,7 @@ footer{padding:36px 0 56px; font-size:.85rem; color:var(--muted); text-align:cen
         <tr><td>max |simulated − analytic| over $\eta \in [0,1]$</td><td class="num">2.8 × 10⁻⁵</td></tr>
         <tr><td>Negativity threshold, located by bisection</td><td class="num">η = 0.50502 (analytic 0.5)</td></tr>
         <tr><td>Worst Gaussian-state $W_{\log}$ (must be 0)</td><td class="num">0.0</td></tr>
-        <tr><td>Test suite</td><td class="num">248 passing</td></tr>
+        <tr><td>Test suite</td><td class="num">283 passing</td></tr>
       </tbody>
     </table>
 
@@ -283,6 +284,72 @@ footer{padding:36px 0 56px; font-size:.85rem; color:var(--muted); text-align:cen
       transmissivity — larger resources are more fragile. And $\eta^*$ moves from 0.505 to
       0.701 for the single photon as $\epsilon$ ranges over $10^{-4}$ to $10^{-1}$, which
       is why thresholds here are always reported together with $\epsilon$.
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Advantage over an optimized matched Gaussian baseline</h2>
+    <p>
+      The comparison the project is built around. The task is target-state preparation,
+      scored by fidelity. The baseline is the best <em>energy-matched</em> displaced
+      squeezed state found, passed through the same channel, so
+      $A = S_{\mathrm{NG}} - S^{*}_{\mathrm{G}}$ measures against the best Gaussian
+      circuit found under stated constraints rather than against an arbitrary one.
+    </p>
+
+    <figure>
+      <img src="assets/05_gaussian_baseline.png"
+           alt="Three panels: fidelity to target for non-Gaussian circuits and their optimized Gaussian baselines against transmissivity; the advantage A decaying smoothly and crossing zero for two of three resources; and Wigner negativity against advantage for a single photon, with a shaded region where negativity is zero but advantage is positive.">
+      <figcaption>
+        <strong>Left:</strong> non-Gaussian circuits (solid) against their optimized
+        matched Gaussian baselines (dashed). <strong>Centre:</strong> the advantage decays
+        smoothly and turns negative for Fock $|2
+angle$ and the cat.
+        <strong>Right:</strong> for a single photon, Wigner negativity reaches zero at
+        $\eta = 1/2$ while the task advantage remains positive far below it.
+      </figcaption>
+    </figure>
+
+    <table>
+      <thead><tr><th>Resource</th><th>$W_{\log}$ at $\eta=1$</th><th>Negativity threshold</th><th>Advantage threshold</th><th>Gaussian wins</th></tr></thead>
+      <tbody>
+        <tr><td>Fock $|1
+angle$</td><td class="num">0.3551</td><td class="num">0.5000</td><td class="num">[0.10, 0.15]</td><td class="num">never (+0.005)</td></tr>
+        <tr><td>Fock $|2
+angle$</td><td class="num">0.5476</td><td class="num">0.5005</td><td class="num">[0.40, 0.45]</td><td class="num">η ≤ 0.35 (−0.023)</td></tr>
+        <tr><td>cat α=1.5</td><td class="num">0.3927</td><td class="num">0.5004</td><td class="num">[0.40, 0.45]</td><td class="num">η ≤ 0.35 (−0.015)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="cards">
+      <div class="card">
+        <h4>Negativity does not discriminate</h4>
+        <p>All three resources lose Wigner negativity at essentially $\eta = 1/2$, while
+        their operational thresholds differ by a factor of about three. Fock
+        $|1
+angle$ carries the <em>least</em> negativity and is the most robust on the
+        task.</p>
+      </div>
+      <div class="card">
+        <h4>Decoupled in both directions</h4>
+        <p>A lossy single photon has $W_{\log}=0$ below $\eta=1/2$ yet still beats the
+        best matched Gaussian down to $\eta pprox 0.15$. For the other two, the
+        Gaussian baseline wins outright below $\eta pprox 0.35$.</p>
+      </div>
+    </div>
+
+    <h3>What bounds the claim</h3>
+    <p>
+      The target is a state the non-Gaussian circuit holds exactly, so $A > 0$ at high
+      transmissivity follows by construction; what does not is how far down in $\eta$ the
+      advantage persists. $S^{*}_{\mathrm{G}}$ is a lower bound on the true Gaussian
+      optimum, which makes $A$ an upper bound — so $A < 0$ is the robust direction, and
+      $A > 0$ carries convergence evidence, recorded per point as the converged fraction
+      and start spread. The optimizer itself is checked against a brute-force grid search
+      on the energy shell, agreeing to $2.4	imes10^{-9}$, and against the analytic
+      best-coherent value $1/e$ which it must exceed by using squeezing.
     </p>
   </div>
 </section>
@@ -354,11 +421,12 @@ python experiments/01_loss_threshold/run.py</code></pre>
       <li class="done">Validate against analytic loss, Gaussian limits and cutoff convergence</li>
       <li class="done">Piquasso backend, cross-validated against the reference</li>
       <li class="done">Non-Gaussian resource decay under pure loss <span class="tag">η*</span></li>
+      <li class="done">Phase-diffusion channel; layered-circuit reducibility</li>
       <li>Depth sweep and collapse depth <span class="tag">D*</span></li>
       <li>Collapse maps over $(D,\eta)$ and $(D,\eta,\bar n_{\rm th})$</li>
       <li>Resource-strength sweeps <span class="tag">γ*, ξ*</span></li>
       <li>Resource placement at fixed depth <span class="tag">k*</span></li>
-      <li>Optimized resource-matched Gaussian baselines</li>
+      <li class="done">Optimized resource-matched Gaussian baselines <span class="tag">A</span></li>
       <li>Operational task scores: state preparation, phase estimation</li>
       <li>Robustness-optimized circuit design, then multimode scaling</li>
     </ol>

@@ -12,12 +12,12 @@ advantage of a non-Gaussian photonic circuit over a resource-matched Gaussian on
 ## Status
 
 The simulation core is built and validated against closed forms. The resource-decay
-study is complete; the optimized Gaussian baseline, operational task scores and collapse
-surfaces are in progress.
+study and the optimized Gaussian baseline are complete. The depth sweep, the second task
+score and the collapse surfaces are in progress.
 
 | | |
 | --- | --- |
-| Test suite | 248 passing |
+| Test suite | 283 passing |
 | Validation vs. closed form | max error 2.8 × 10⁻⁵ |
 | Backends | pure-NumPy reference + Piquasso 8.0.1, cross-validated |
 | Scope | 1–4 modes, mixed-state Fock representation |
@@ -52,7 +52,8 @@ and measurement family.
 **Validation.** A single photon through pure loss of transmissivity `eta` has
 `int|W| = 4 eta exp(-(1 - 1/(2 eta))) - 1` for `eta >= 1/2` and `1` below, so its Wigner
 negativity vanishes at exactly `eta = 1/2`. Simulation reproduces this to 2.8e-05, with
-the threshold located by bisection at `eta = 0.50502`.
+the threshold located by bisection at `eta = 0.50502` at a survival tolerance of
+1e-4, and at `eta = 0.5000` as that tolerance is taken to zero.
 
 **Resource decay.** Critical transmissivity at `epsilon = 1e-3`:
 
@@ -69,6 +70,35 @@ the threshold located by bisection at `eta = 0.50502`.
 Higher Fock states carry more negativity but lose it at higher transmissivity. `eta*`
 moves 0.505 → 0.701 for the single photon as `epsilon` ranges over 1e-4 to 1e-1, so
 thresholds are reported with `epsilon` rather than alone.
+
+**Advantage over an optimized matched Gaussian baseline.** Task: target-state
+preparation, scored by fidelity. The baseline is the best energy-matched displaced
+squeezed state found, passed through the same channel, so `A = S_NG - S_G*` compares
+against the best Gaussian circuit found under stated constraints rather than an
+arbitrary one.
+
+| resource | `W_log` at `eta=1` | negativity threshold | advantage threshold (`A > 0.01`) | Gaussian wins |
+| --- | --- | --- | --- | --- |
+| Fock \|1> | 0.3551 | 0.5000 | `eta` in [0.10, 0.15] | never (min `A` = +0.005) |
+| Fock \|2> | 0.5476 | 0.5005 | `eta` in [0.40, 0.45] | `eta <= 0.35` (min `A` = -0.023) |
+| cat α=1.5 | 0.3927 | 0.5004 | `eta` in [0.40, 0.45] | `eta <= 0.35` (min `A` = -0.015) |
+
+Two consequences. The negativity threshold is essentially the same (≈ 1/2) for all three
+resources while the operational threshold differs by a factor of about three, so the
+resource measure does not discriminate between resources that behave very differently on
+the task. And Fock \|1>, which carries the least negativity of the three, is the most
+operationally robust — more negativity does not mean more usefulness here.
+
+There is a wide regime with `W_log = 0` and `A > 0`: a lossy single photon has no Wigner
+negativity below `eta = 1/2` yet still beats the best matched Gaussian down to
+`eta ≈ 0.15`. RESEARCH_PLAN.md anticipated the opposite pairing (`W_log > 0`, `A <= 0`);
+both occur, so the two measures decouple in both directions.
+
+Bounding the claim: the target is a state the non-Gaussian circuit holds exactly, so
+`A > 0` at high transmissivity follows by construction. What does not is how far down in
+`eta` the advantage persists. `S_G*` is a lower bound on the true Gaussian optimum, which
+makes `A` an upper bound, so `A < 0` is the robust direction and `A > 0` carries the
+convergence evidence (converged fraction and start spread are recorded per point).
 
 **Noise axes are resource-specific.** Phase diffusion acts as
 `rho_mn -> rho_mn exp(-sigma^2 (m-n)^2 / 2)`, so a Fock state is a fixed point at any
@@ -96,6 +126,7 @@ pip install -e ".[sim]"   # adds the Piquasso backend
 pytest tests/ -q
 python experiments/00_validation/run_validation.py
 python experiments/01_loss_threshold/run.py
+python experiments/05_gaussian_baseline/run.py   # ~10 min
 ```
 
 Piquasso tests skip automatically if the `sim` extra is absent.
@@ -105,7 +136,7 @@ Piquasso tests skip automatically if the `sim` extra is absent.
 ```
 src/ngphotonic/     backends, noise channels, metrics, circuits, analysis
 experiments/        reproducible runs; each writes JSON + a figure
-tests/              248 tests, closed-form and cross-backend
+tests/              283 tests, closed-form and cross-backend
 docs/               project page (GitHub Pages)
 figures/            curated figures referenced by the docs
 results/            raw per-run output (gitignored)
