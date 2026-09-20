@@ -26,6 +26,54 @@
 
 This project investigates how realistic noise mechanisms destroy non-Gaussian quantum advantage in continuous-variable (CV) photonic circuits. It serves as the photonic analogue of noise-adaptive depth threshold and coherence collapse studies in discrete-variable quantum computing.
 
+## V1 Figures
+
+The prototype generates three figures. They are reproduced here **with the caveat that
+they visualise the assumed decay law, not simulated dynamics** — and because each one
+shows, fairly legibly, exactly where the model runs out.
+
+### Non-Gaussianity collapse vs. circuit depth
+
+![Four-panel figure: Wigner negativity decay, state purity evolution, quantum advantage
+loss, and non-classical statistics, each plotted against circuit depth for six noise
+scenarios](noise_collapse_plots.png)
+
+Note the top-left panel: on a log axis every negativity curve is a perfectly straight
+line. That straightness *is* the ansatz — `N_W(d) = N_0 exp(-g_eff d)` cannot produce
+anything else. Real Fock-space dynamics under a pure-loss channel do not give a clean
+single exponential in the negativity, because the negative volume depends non-linearly on
+how the whole density matrix reshapes. Curvature, or its absence, is the diagnostic to
+watch when V2 replaces this panel.
+
+### Parameter sweeps
+
+![Four-panel figure: Wigner negativity at depth 30 over loss and thermal photons, collapse
+depth over the same plane, negativity evolution over depth and loss, and a viable
+operating region boundary](experimental_parameter_sweeps.png)
+
+The contours in the top two panels are nearly vertical — thermal occupation appears to
+barely matter. That is not a physical finding either. It follows from the chosen sweep
+ranges against the chosen coefficients: loss spans 0-0.1 weighted at 2.0 (so up to 0.2),
+while thermal photons span 0-0.02 weighted at 1.5 (so up to 0.03). The axis ranges decide
+the apparent hierarchy.
+
+### Platform comparison (withdrawn)
+
+![Two-panel figure: negativity decay for four photonic platforms, and a bar chart of
+maximum viable circuit depth showing an identical value of 31 for every
+platform](platform_comparison.png)
+
+**This figure is retained only as a record of what not to publish.** Two things are wrong
+with it. First, the ranking of the four platforms restates four input loss constants
+through one invented decay law. Second — visible in the figure itself — no curve in the
+left panel ever crosses the dashed 10^-2 threshold within the plotted range, yet the right
+panel reports a "maximum viable circuit depth" of **31 for all four platforms**. That
+identical 31 is the sweep boundary, not a measured collapse. The bar chart has no
+information content.
+
+A real platform comparison needs calibrated per-platform channel parameters and the V2
+simulation. It is out of scope for V1.
+
 ## Scientific Questions
 
 ### Primary Questions

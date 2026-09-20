@@ -76,6 +76,11 @@ input assumption. Testing whether real CV dynamics reproduce it is a V2 objectiv
 The earlier ranking (fiber > SiN > free-space > silicon) was produced by substituting four
 different loss floats into the same invented decay constant. It carries no information
 about real hardware beyond "lower assumed loss ranks higher," and should not be quoted.
+Worse, `platform_comparison.png` reports a "maximum viable circuit depth" of **31 for all
+four platforms simultaneously**, while no negativity curve in its companion panel ever
+crosses the 10^-2 threshold in the plotted range. That 31 is the sweep boundary, not a
+measured collapse, so the bar chart carries no information at all.
+
 A meaningful platform comparison requires calibrated per-platform channel parameters plus
 the V2 simulation, and is out of scope for V1.
 
