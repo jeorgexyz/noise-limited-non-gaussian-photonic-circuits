@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+.python-version
+
+# Tooling
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Generated research output
+# Figures and result dumps are reproducible from the scripts/configs.
+# Tracked exceptions for the V1 prototype are force-added; see README.
+results/
+figures/
+*.zarr/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

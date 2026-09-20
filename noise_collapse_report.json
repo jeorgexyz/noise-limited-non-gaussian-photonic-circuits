@@ -1,0 +1,83 @@
+{
+  "scenarios": {
+    "Near-Ideal": {
+      "noise_parameters": {
+        "loss_per_layer": 0.001,
+        "thermal_photons": 0.0001,
+        "squeezing_imperfection": 0.99,
+        "detector_efficiency": 0.99
+      },
+      "collapse_depth": 51,
+      "final_negativity": 0.699422698942729,
+      "final_purity": 0.8578204083697543,
+      "final_simulability": 0.6497008820864283
+    },
+    "Lab-Grade": {
+      "noise_parameters": {
+        "loss_per_layer": 0.01,
+        "thermal_photons": 0.001,
+        "squeezing_imperfection": 0.95,
+        "detector_efficiency": 0.98
+      },
+      "collapse_depth": 51,
+      "final_negativity": 0.09778344405134991,
+      "final_purity": 0.5569050526255268,
+      "final_simulability": 0.07611976905333609
+    },
+    "Moderate Loss": {
+      "noise_parameters": {
+        "loss_per_layer": 0.05,
+        "thermal_photons": 0.001,
+        "squeezing_imperfection": 0.95,
+        "detector_efficiency": 0.95
+      },
+      "collapse_depth": 37,
+      "final_negativity": 0.0017909662505412682,
+      "final_purity": 0.11243719097872418,
+      "final_simulability": 0.0009961687324449133
+    },
+    "High Thermal": {
+      "noise_parameters": {
+        "loss_per_layer": 0.01,
+        "thermal_photons": 0.01,
+        "squeezing_imperfection": 0.95,
+        "detector_efficiency": 0.98
+      },
+      "collapse_depth": 51,
+      "final_negativity": 0.049787068367863875,
+      "final_purity": 0.27107479072098184,
+      "final_simulability": 0.03164154375314689
+    },
+    "Poor Squeezing": {
+      "noise_parameters": {
+        "loss_per_layer": 0.01,
+        "thermal_photons": 0.001,
+        "squeezing_imperfection": 0.8,
+        "detector_efficiency": 0.98
+      },
+      "collapse_depth": 38,
+      "final_negativity": 0.002299646186124938,
+      "final_purity": 0.5569050526255268,
+      "final_simulability": 0.0017901653832144695
+    },
+    "Worst-Case": {
+      "noise_parameters": {
+        "loss_per_layer": 0.1,
+        "thermal_photons": 0.02,
+        "squeezing_imperfection": 0.75,
+        "detector_efficiency": 0.9
+      },
+      "collapse_depth": 13,
+      "final_negativity": 0.0,
+      "final_purity": 0.1,
+      "final_simulability": 0.0
+    }
+  },
+  "comparative_analysis": {
+    "min_collapse_depth": 13,
+    "max_collapse_depth": 51,
+    "depth_range": 38,
+    "most_robust_scenario": "Worst-Case",
+    "least_robust_scenario": "Near-Ideal"
+  }
+}
