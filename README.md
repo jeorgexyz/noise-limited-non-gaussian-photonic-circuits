@@ -26,6 +26,93 @@
 
 This project investigates how realistic noise mechanisms destroy non-Gaussian quantum advantage in continuous-variable (CV) photonic circuits. It serves as the photonic analogue of noise-adaptive depth threshold and coherence collapse studies in discrete-variable quantum computing.
 
+## V2 Validation (in progress)
+
+The first real simulation result in this repository. `src/ngphotonic/` now contains a
+pure-NumPy mixed-state Fock backend, a pure-loss channel, and a Wigner/negativity metric
+stack, validated against closed forms rather than against an assumption.
+
+![Three-panel validation figure: simulated versus analytic integral of |W| against
+transmissivity showing a kink at eta = 1/2; the residual jumping from 1e-16 to 1e-5 at
+that same point; and cutoff convergence flat across Fock cutoffs 5 to
+40](figures/00_validation_loss_threshold.png)
+
+**The check.** A single photon through a pure-loss channel of transmissivity `eta`
+becomes `eta|1><1| + (1-eta)|0><0|`, whose Wigner function is
+
+```
+W(x, p) = (1/pi) exp(-r^2) [2 eta r^2 - 2 eta + 1],    r^2 = x^2 + p^2
+```
+
+negative exactly where `r^2 < (2 eta - 1)/(2 eta)`. Integrating gives
+
+```
+int |W| = 4 eta exp(-(1 - 1/(2 eta))) - 1     for eta >= 1/2
+int |W| = 1                                    for eta <= 1/2
+```
+
+so **Wigner negativity of a lossy single photon vanishes at exactly `eta = 1/2`**. One
+closed form exercises the channel, the Wigner transform, and the negativity integral at
+once. Measured against it:
+
+| quantity | result |
+| --- | --- |
+| max \|simulated - analytic\| over `eta` in [0, 1] | `2.8e-05` |
+| negativity threshold, located by bisection | `eta = 0.50502` (analytic `0.5`) |
+| worst Gaussian-state `W_log` (must be 0) | `0.0` |
+| tests passing | 160 |
+
+The middle panel is the most informative: the residual sits at machine precision
+(`1e-16`) below `eta = 1/2`, where the state is *exactly* Wigner-positive and the
+integral is trivially 1, then jumps to `1e-5` the instant a kink appears in `|W|` and
+trapezoidal quadrature has something to struggle with. The threshold is visible in the
+error structure, not just in the curve.
+
+### What validation caught
+
+Two failure modes that would have silently corrupted later results:
+
+**Truncation manufactures the resource.** By Hudson's theorem a *pure* state has a
+non-negative Wigner function if and only if it is Gaussian. A truncated, renormalised
+squeezed ket is not Gaussian, so it necessarily shows Wigner negativity that is pure
+numerics. Measured spurious `W_log` for squeezed vacuum:
+
+```
+r = 0.6:  cutoff 20 -> 2.0e-3,  40 -> 1.0e-6,  60 -> 0
+r = 1.0:  cutoff 20 -> 9.4e-2,  40 -> 4.8e-3,  80 -> 0
+```
+
+At `r = 1.0` and cutoff 20 a **Gaussian** state reports `W_log = 0.094` -- about 26% of
+the genuine `0.355` of a single photon. That is large enough to be mistaken for a
+physical finding. `squeezed_ket` now warns when its tail weight is too large, and the
+effect is pinned by a test.
+
+**Grid extent versus cutoff.** The displaced-parity Wigner method displaces by the full
+grid extent, so it needs a far larger cutoff than the state does. Accuracy tracks
+`ratio = cutoff / |alpha|^2_max`:
+
+```
+ratio    3      5      6.5     10      15
+error    1e-2   2e-4   1e-7    2e-9    1e-14
+```
+
+Below ratio 8 the routine now warns rather than returning confident nonsense.
+
+Neither failure is exotic. Both produce smooth, plausible curves. Both are exactly the
+kind of thing the V1 ansatz could never have surfaced, because V1 never built a state.
+
+### Running it
+
+```bash
+python -m pytest tests/ -q                          # 160 tests, ~48s
+python experiments/00_validation/run_validation.py  # regenerates the figure above
+```
+
+### Not yet done
+
+Piquasso backend, thermal/phase/squeezing-error channels, cubic-phase and Kerr gates,
+the optimized matched Gaussian baseline, and every sweep. See `RESEARCH_PLAN.md`.
+
 ## V1 Figures
 
 The prototype generates three figures. They are reproduced here **with the caveat that

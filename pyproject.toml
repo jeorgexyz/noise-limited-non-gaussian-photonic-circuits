@@ -62,3 +62,6 @@ ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# Lets the suite run straight from a checkout without an editable install.
+pythonpath = ["src"]
+markers = ["slow: validation runs that sweep grids or cutoffs"]
