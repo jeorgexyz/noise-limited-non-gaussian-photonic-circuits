@@ -1,8 +1,6 @@
 """Validation experiment: simulated vs. analytic Wigner negativity under pure loss.
 
-This is the first result in the repository produced by actually simulating a quantum
-state rather than evaluating an assumed decay law. It reproduces, from a mixed-state
-Fock simulation, the closed form
+Reproduces, from a mixed-state Fock simulation, the closed form
 
     int |W| = 4 eta exp(-(1 - 1/(2 eta))) - 1     for eta >= 1/2
     int |W| = 1                                    for eta <= 1/2
