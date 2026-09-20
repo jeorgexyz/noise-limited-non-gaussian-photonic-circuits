@@ -12,8 +12,8 @@ and ``1`` otherwise. So negativity vanishes at exactly ``eta = 1/2``.
 
 That single closed form exercises the loss channel, the Wigner transform, and the
 negativity integral simultaneously, which is why RESEARCH_PLAN.md nominates it as the
-first validation milestone. It is also the check the V1 prototype could never have
-performed, because V1 never built a state to integrate.
+first validation milestone. It requires an explicitly constructed state, which the
+phenomenological V1 model does not produce.
 """
 
 from __future__ import annotations
@@ -115,8 +115,7 @@ def test_negativity_vanishes_at_half_transmissivity() -> None:
 
 
 def test_negativity_decreases_monotonically_with_loss() -> None:
-    """More loss never increases the resource. A monotone the ansatz got right by
-    construction and a real simulation has to earn."""
+    """Additional loss does not increase the resource."""
     x, p, X, P = _grid()
     etas = np.linspace(0.5, 1.0, 11)
     values = [
@@ -159,27 +158,27 @@ def test_gaussian_states_have_zero_log_negativity(name: str, rho: np.ndarray) ->
     assert negative_volume(W, x, p) < 1e-6
 
 
-def test_truncation_manufactures_negativity_in_gaussian_states() -> None:
-    """Pinned artefact: too small a cutoff invents the resource being measured.
+def test_truncation_induces_negativity_in_gaussian_states() -> None:
+    """Too small a cutoff produces negativity in a state that has none.
 
     A squeezed vacuum is Gaussian and must have ``W_log = 0``. Truncate it and, by
     Hudson's theorem, the renormalised pure state is no longer Gaussian and acquires
     Wigner negativity that is pure numerics. At ``r = 1.0`` and cutoff 20 the artefact
-    reaches ``W_log ~ 0.09``, which is roughly a quarter of the genuine ``0.355`` of a
-    single photon -- large enough to be mistaken for a physical result.
+    reaches ``W_log ~ 0.063``, about 18% of the ``0.355`` carried by a single photon, so
+    it is comparable in magnitude to a physical resource.
 
     This is the concrete form of the hazard RESEARCH_PLAN.md section 11 exists to
     guard against, so it is asserted rather than left as a comment.
     """
     x, p, X, P = _grid()
-    genuine = wigner_log_negativity(wigner(fock_dm(1, CUTOFF), X, P), x, p)
+    reference_value = wigner_log_negativity(wigner(fock_dm(1, CUTOFF), X, P), x, p)
 
     with pytest.warns(RuntimeWarning, match="spurious Wigner negativity"):
         starved = to_dm(squeezed_ket(1.0, 0.0, 20))
     artefact = wigner_log_negativity(wigner(starved, X, P), x, p)
 
     assert artefact > 0.05
-    assert artefact > 0.15 * genuine  # comparable to a real resource
+    assert artefact > 0.15 * reference_value  # comparable to a physical resource
 
     # Enough headroom and the artefact disappears.
     converged = to_dm(squeezed_ket(1.0, 0.0, 100))
@@ -268,8 +267,8 @@ def test_result_is_independent_of_fock_cutoff(cutoff: int) -> None:
     """Cutoff convergence ``|M_{c+dc} - M_c| < eps``.
 
     A single photon needs only two Fock levels, so every cutoff above 2 must agree.
-    Cheap here, but the same check is what stops truncation from manufacturing results
-    for the cat and squeezed states later.
+    Inexpensive here, but the same check bounds truncation effects for the cat and
+    squeezed states.
     """
     x, p, X, P = _grid()
     value = integrate_abs_wigner(wigner(apply_loss(fock_dm(1, cutoff), 0.8), X, P), x, p)

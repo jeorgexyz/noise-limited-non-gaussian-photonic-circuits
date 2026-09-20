@@ -188,13 +188,11 @@ def squeezed_ket(r: float, phi: float = 0.0, cutoff: int = 30) -> np.ndarray:
 
         ``|z> = (1/sqrt(cosh r)) sum_m [sqrt((2m)!) / (2^m m!)] (-e^{i phi} tanh r)^m |2m>``
 
-    An earlier version exponentiated the truncated squeeze generator instead. The
-    Piquasso cross-validation showed that to be the weaker of the two: against this
-    exact series, at cutoff 12 and r = 0.4, Piquasso erred by 2.0e-06 and the
-    ``expm`` route by 4.4e-04. Two backends disagreeing is how that surfaced, which is
-    the argument for keeping both.
+    An earlier version exponentiated the truncated squeeze generator. Cross-validation
+    against Piquasso measured that route as less accurate: at cutoff 12 and r = 0.4,
+    Piquasso deviated from this series by 2.0e-06 and the ``expm`` route by 4.4e-04.
 
-    Truncation still bites, and in a way that matters here. By Hudson's theorem a
+    Truncation remains relevant at finite cutoff. By Hudson's theorem a
     *pure* state has a non-negative Wigner function if and only if it is Gaussian. A
     truncated, renormalised squeezed ket is not Gaussian, so it necessarily carries
     Wigner negativity that is a numerical artefact rather than physics. Measured
@@ -204,14 +202,14 @@ def squeezed_ket(r: float, phi: float = 0.0, cutoff: int = 30) -> np.ndarray:
         r = 0.8:  cutoff 20 -> 1.5e-2,  40 -> 1.2e-4,  60 -> 0
         r = 1.0:  cutoff 20 -> 6.3e-2,  40 -> 2.7e-3,  60 -> 0
 
-    At ``r = 1.0`` and cutoff 20 that artefact is 18% of the genuine ``W_log = 0.355``
-    of a single photon -- large enough to read as a physical result. (The figure was
-    26% while this function exponentiated a truncated generator; switching to the exact
-    series removed the extra error but not the underlying truncation floor, which is
-    irreducible at finite cutoff.)
+    At ``r = 1.0`` and cutoff 20 that artefact is 18% of the ``W_log = 0.355`` carried by
+    a single photon, so it is comparable in magnitude to a physical resource. (The figure
+    was 26% while this function exponentiated a truncated generator; the exact series
+    removes that additional error, leaving the truncation floor, which is irreducible at
+    finite cutoff.)
 
-    Any negativity this project reports must sit well clear of that floor; the warning
-    below fires when :func:`tail_weight` says it might not.
+    Reported negativity should sit clear of that floor. The warning below fires when
+    :func:`tail_weight` indicates it may not.
     """
     _check_cutoff(cutoff)
     ket = np.zeros(cutoff, dtype=complex)

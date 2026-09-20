@@ -6,8 +6,8 @@ Three independent references are used, so an error has nowhere to hide:
 2. The displaced-parity definition, evaluated by matrix exponential.
 3. Normalisation and reality, which hold for any valid density matrix.
 
-The cross-check between the fast Laguerre path and the slow parity path is the load
-bearing test here: a Wigner routine that is wrong by a factor or a missing conjugate
+The cross-check between the fast Laguerre path and the slow parity path is the primary
+test here, since a Wigner routine carrying an incorrect factor or a missing conjugate
 still produces smooth, plausible-looking output.
 """
 
@@ -177,8 +177,8 @@ def test_gaussian_states_are_non_negative() -> None:
 def test_parity_method_degrades_when_cutoff_too_low() -> None:
     """The parity path fails loudly, not silently, when the grid outruns the cutoff.
 
-    Pinned deliberately: this is the exact shape of error that makes a truncated
-    simulation produce confident nonsense. A cutoff-16 state on a grid reaching
+    Asserted here because the error is smooth and plausible rather than obvious. A
+    cutoff-16 state on a grid reaching
     |alpha|^2 = 25 has a non-unitary displacement operator, so the two Wigner paths
     disagree at the percent level rather than at machine precision.
     """

@@ -196,7 +196,7 @@ actually different. They are expected to be.
 
 ## 11. Numerical validation
 
-Fock truncation can manufacture results, so this is not optional.
+Fock truncation can contribute to measured quantities, so this is not optional.
 
 Pure-state dimension scales combinatorially:
 

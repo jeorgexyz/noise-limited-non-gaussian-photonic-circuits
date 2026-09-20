@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Noise-Limited Non-Gaussian Photonic Circuits</title>
+<meta name="description" content="Mapping where noise, circuit depth and resource placement end the operational advantage of non-Gaussian photonic circuits over resource-matched Gaussian ones.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+  MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] }, svg: { fontCache: 'global' } };
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<style>
+:root{
+  --bg:#ffffff; --surface:#f7f8fa; --border:#e3e6ea;
+  --text:#14171c; --muted:#5a6472; --accent:#1e5fbf; --accent-soft:#e8f0fd;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --maxw:860px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1116; --surface:#161b22; --border:#272d36;
+    --text:#e6edf3; --muted:#9aa5b1; --accent:#6ea8ff; --accent-soft:#16263f;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1116; --surface:#161b22; --border:#272d36;
+  --text:#e6edf3; --muted:#9aa5b1; --accent:#6ea8ff; --accent-soft:#16263f;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font-family:'Inter',system-ui,-apple-system,sans-serif;
+  font-size:16.5px; line-height:1.7; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:var(--maxw); margin:0 auto; padding:0 16px}
+
+/* hero */
+header{padding:64px 0 40px; text-align:center; border-bottom:1px solid var(--border)}
+h1{
+  font-size:clamp(1.8rem,4.6vw,2.7rem); line-height:1.2; margin:0 0 14px;
+  font-weight:700; letter-spacing:-0.02em;
+}
+.tagline{font-size:1.05rem; color:var(--muted); margin:0 auto 26px; max-width:640px}
+.byline{font-size:.95rem; margin-bottom:6px}
+.affil{font-size:.85rem; color:var(--muted); margin-bottom:26px}
+.links{display:flex; gap:10px; justify-content:center; flex-wrap:wrap}
+.btn{
+  display:inline-flex; align-items:center; gap:7px;
+  padding:9px 17px; border-radius:999px; text-decoration:none;
+  background:var(--text); color:var(--bg); font-size:.9rem; font-weight:500;
+  border:1px solid var(--text); transition:opacity .15s;
+}
+.btn:hover{opacity:.82}
+.btn.ghost{background:transparent; color:var(--text); border-color:var(--border)}
+.btn.disabled{background:transparent; color:var(--muted); border-color:var(--border); cursor:not-allowed; opacity:.65}
+
+/* status ribbon */
+.status{
+  margin:26px auto 0; max-width:660px; padding:11px 16px;
+  background:var(--accent-soft); border:1px solid var(--border); border-radius:10px;
+  font-size:.86rem; color:var(--text); text-align:left;
+}
+.status b{color:var(--accent)}
+
+section{padding:44px 0; border-bottom:1px solid var(--border)}
+section:last-of-type{border-bottom:none}
+h2{font-size:1.45rem; margin:0 0 16px; font-weight:650; letter-spacing:-0.01em}
+h3{font-size:1.05rem; margin:28px 0 10px; font-weight:600}
+p{margin:0 0 16px}
+a{color:var(--accent)}
+
+.lead{font-size:1.05rem}
+.eq{
+  background:var(--surface); border:1px solid var(--border); border-radius:10px;
+  padding:6px 18px; margin:20px 0; overflow-x:auto;
+}
+figure{margin:26px 0}
+figure img{width:100%; border:1px solid var(--border); border-radius:10px; display:block; background:#fff}
+figcaption{font-size:.85rem; color:var(--muted); margin-top:10px; line-height:1.6}
+
+table{width:100%; border-collapse:collapse; font-size:.9rem; margin:18px 0}
+th,td{text-align:left; padding:9px 11px; border-bottom:1px solid var(--border)}
+th{font-weight:600; color:var(--muted); font-size:.8rem; text-transform:uppercase; letter-spacing:.04em}
+td.num{font-family:var(--mono); font-size:.86rem}
+
+code{font-family:var(--mono); font-size:.87em; background:var(--surface); padding:2px 5px; border-radius:4px; border:1px solid var(--border)}
+pre{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:15px 17px; overflow-x:auto; font-size:.84rem; line-height:1.55}
+pre code{background:none; border:none; padding:0}
+
+.cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:14px; margin:20px 0}
+.card{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:16px 18px}
+.card h4{margin:0 0 7px; font-size:.95rem; font-weight:600}
+.card p{margin:0; font-size:.88rem; color:var(--muted); line-height:1.6}
+
+ol.roadmap{list-style:none; counter-reset:step; padding:0; margin:18px 0}
+ol.roadmap li{
+  counter-increment:step; position:relative; padding:10px 0 10px 44px;
+  border-bottom:1px solid var(--border); font-size:.93rem;
+}
+ol.roadmap li:last-child{border-bottom:none}
+ol.roadmap li::before{
+  content:counter(step); position:absolute; left:0; top:11px;
+  width:26px; height:26px; border-radius:50%; background:var(--surface);
+  border:1px solid var(--border); color:var(--muted);
+  display:flex; align-items:center; justify-content:center; font-size:.75rem; font-weight:600;
+}
+ol.roadmap li.done::before{background:var(--accent); border-color:var(--accent); color:#fff; content:"✓"}
+ol.roadmap li.done{color:var(--muted)}
+.tag{font-size:.7rem; text-transform:uppercase; letter-spacing:.05em; padding:2px 8px; border-radius:999px; border:1px solid var(--border); color:var(--muted); margin-left:8px; white-space:nowrap}
+
+footer{padding:36px 0 56px; font-size:.85rem; color:var(--muted); text-align:center}
+.theme-toggle{
+  position:fixed; top:14px; right:14px; z-index:20;
+  background:var(--surface); border:1px solid var(--border); color:var(--muted);
+  border-radius:999px; padding:7px 13px; font-size:.78rem; cursor:pointer; font-family:inherit;
+}
+@media (max-width:600px){ header{padding:44px 0 30px} section{padding:34px 0} }
+</style>
+</head>
+<body>
+<button class="theme-toggle" onclick="toggleTheme()">◐ theme</button>
+
+<header>
+  <div class="wrap">
+    <h1>Noise-Limited Non-Gaussian<br>Photonic Circuits</h1>
+    <p class="tagline">
+      Where do loss, dephasing, circuit depth and resource placement end the operational
+      advantage of a non-Gaussian photonic circuit over a resource-matched Gaussian one?
+    </p>
+    <div class="byline">J. D. Anderson</div>
+    <div class="affil">Computational quantum photonics</div>
+    <div class="links">
+      <a class="btn" href="https://github.com/jeorgexyz/noise-limited-non-gaussian-photonic-circuits">Code</a>
+      <span class="btn disabled" title="Available once the V2 programme is complete">Paper — in preparation</span>
+      <span class="btn disabled" title="Available once the V2 programme is complete">PDF report — in preparation</span>
+    </div>
+    <div class="status">
+      <b>Status.</b> The simulation core is built and validated against closed forms; the
+      resource-decay study is running. The optimized Gaussian baseline, the operational
+      task scores and the collapse surfaces are in progress. Numbers below are reported
+      with the brackets their numerics support.
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <h2>Overview</h2>
+    <p class="lead">
+      Non-Gaussian resources — Fock states, cat states, cubic-phase and Kerr
+      interactions — are what lift continuous-variable photonic circuits beyond efficient
+      classical simulation. Physical noise degrades them. The practical question is not
+      whether that happens but <em>where the boundary sits</em>, and whether the boundary
+      for a <em>nominal</em> resource measure coincides with the boundary for
+      <em>operational usefulness</em>.
+    </p>
+    <p>
+      Recent work indicates these are not the same thing: Wigner negativity can persist
+      after it stops implying useful computational resourcefulness. This project measures
+      three quantities separately rather than assuming they track each other.
+    </p>
+    <div class="eq">$$\text{resource survival}\;\neq\;\text{task usefulness}\;\neq\;\text{classical simulation difficulty}$$</div>
+    <p>
+      For a depth-$D$ circuit with imperfection channels $\mathcal N_l$,
+    </p>
+    <div class="eq">$$\rho_{l+1} = \mathcal N_l\!\left[U_l(\theta_l)\,\rho_l\,U_l^\dagger(\theta_l)\right]$$</div>
+    <p>
+      the advantage over the <strong>best resource-matched Gaussian circuit</strong> under
+      noise configuration $\nu$ defines a collapse boundary:
+    </p>
+    <div class="eq">$$A(D,\nu) = S_{\mathrm{NG}}(D,\nu) - S^{*}_{\mathrm{G}}(D,\nu),
+      \qquad D^{*}(\nu) = \max\{D : A(D,\nu) > \epsilon\}$$</div>
+    <p>
+      The Gaussian baseline is optimized under matched mean photon number, mode count,
+      depth and measurement family. The comparison is against the best Gaussian circuit
+      found under stated constraints, not against an arbitrary weak one.
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Validated simulation core</h2>
+    <p>
+      Every quantity is checked against a closed form before it is used. The reference
+      case is a single photon through a pure-loss channel of transmissivity $\eta$, which
+      becomes $\eta|1\rangle\langle1| + (1-\eta)|0\rangle\langle0|$ with Wigner function
+    </p>
+    <div class="eq">$$W(x,p) = \tfrac{1}{\pi}e^{-r^2}\left[2\eta r^2 - 2\eta + 1\right],
+      \qquad r^2 = x^2+p^2$$</div>
+    <p>
+      negative exactly where $r^2 < (2\eta-1)/(2\eta)$, so
+      $\int|W| = 4\eta\,e^{-(1-\frac{1}{2\eta})} - 1$ for $\eta \ge \tfrac12$ and $1$
+      below. Wigner negativity of a lossy single photon therefore vanishes at exactly
+      $\eta = 1/2$. One closed form exercises the channel, the Wigner transform and the
+      negativity integral together.
+    </p>
+
+    <figure>
+      <img src="assets/00_validation_loss_threshold.png"
+           alt="Three panels: simulated versus analytic integral of the absolute Wigner function against transmissivity with a kink at eta one half; the residual jumping from 1e-16 to 1e-5 at that point; and cutoff convergence flat from Fock cutoff 5 to 40.">
+      <figcaption>
+        <strong>Validation against the closed form.</strong> Left: simulation reproduces the
+        analytic curve. Centre: the residual sits at machine precision below $\eta=1/2$,
+        where the state is exactly Wigner-positive and the integral is trivially 1, then
+        rises to quadrature level once $|W|$ develops a kink — the threshold is visible in
+        the error structure itself. Right: a single photon needs only two Fock levels, so
+        every cutoff above 2 agrees.
+      </figcaption>
+    </figure>
+
+    <table>
+      <thead><tr><th>Quantity</th><th>Result</th></tr></thead>
+      <tbody>
+        <tr><td>max |simulated − analytic| over $\eta \in [0,1]$</td><td class="num">2.8 × 10⁻⁵</td></tr>
+        <tr><td>Negativity threshold, located by bisection</td><td class="num">η = 0.50502 (analytic 0.5)</td></tr>
+        <tr><td>Worst Gaussian-state $W_{\log}$ (must be 0)</td><td class="num">0.0</td></tr>
+        <tr><td>Test suite</td><td class="num">248 passing</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Two numerical effects the validation quantifies</h3>
+    <div class="cards">
+      <div class="card">
+        <h4>Truncation induces negativity in Gaussian states</h4>
+        <p>By Hudson's theorem a pure state has a non-negative Wigner function iff it is
+        Gaussian. A truncated, renormalised squeezed ket is not Gaussian, so it carries
+        negativity that is numerical. At $r=1.0$, cutoff 20 this reaches
+        $W_{\log}=0.063$ — 18% of a real single photon's 0.355.</p>
+      </div>
+      <div class="card">
+        <h4>Backend agreement is not always evidence</h4>
+        <p>For the cubic-phase gate two independent backends agree to $10^{-17}$ while both
+        differ from the converged result by $9.6\times10^{-5}$, identically. They
+        exponentiate the same truncated $x^3$. Where implementations coincide, only cutoff
+        convergence is informative.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Resource decay under pure loss</h2>
+    <p>
+      Critical transmissivity $\eta^*$ at which Wigner logarithmic negativity
+      $W_{\log}(\rho) = \log\int|W_\rho|\,dq\,dp$ falls to a survival threshold
+      $\epsilon$, for seven non-Gaussian resources. The single photon serves as a control:
+      its threshold is analytically $\eta = 1/2$ as $\epsilon \to 0$.
+    </p>
+
+    <figure>
+      <img src="assets/01_loss_threshold.png"
+           alt="Three panels: Wigner logarithmic negativity against transmissivity for seven resources; a bar chart of critical transmissivity with error bars; and critical transmissivity plotted against the survival threshold epsilon on a log axis.">
+      <figcaption>
+        <strong>Critical transmissivity per resource.</strong> Left: decay curves, with the
+        analytic Fock-1 threshold marked. Centre: $\eta^*$ at $\epsilon = 10^{-3}$, with
+        bars showing the resolution the metric's noise floor supports. Right: $\eta^*$
+        against $\epsilon$ — the collapse point is a property of the resource together with
+        the amount of surviving negativity required.
+      </figcaption>
+    </figure>
+
+    <table>
+      <thead><tr><th>Resource</th><th>$W_{\log}$ at $\eta=1$</th><th>$\eta^*$ ($\epsilon=10^{-3}$)</th></tr></thead>
+      <tbody>
+        <tr><td>Fock $|1\rangle$ <span class="tag">control</span></td><td class="num">0.3551</td><td class="num">0.5163 ± 0.0008</td></tr>
+        <tr><td>Fock $|2\rangle$</td><td class="num">0.5476</td><td class="num">0.5343 ± 0.0012</td></tr>
+        <tr><td>Fock $|3\rangle$</td><td class="num">0.6816</td><td class="num">0.5520 ± 0.0014</td></tr>
+        <tr><td>Cat $\alpha=1.0$</td><td class="num">0.1891</td><td class="num">0.5442 ± 0.0021</td></tr>
+        <tr><td>Cat $\alpha=1.5$</td><td class="num">0.3927</td><td class="num">0.5281 ± 0.0014</td></tr>
+        <tr><td>Cat $\alpha=2.0$</td><td class="num">0.4625</td><td class="num">0.5400 ± 0.0020</td></tr>
+        <tr><td>Kerr(0.6) ∘ Sq(0.6)</td><td class="num">0.2326</td><td class="num">0.5307 ± 0.0015</td></tr>
+      </tbody>
+    </table>
+
+    <p>
+      Two observations. Higher Fock states carry more negativity but lose it at higher
+      transmissivity — larger resources are more fragile. And $\eta^*$ moves from 0.505 to
+      0.701 for the single photon as $\epsilon$ ranges over $10^{-4}$ to $10^{-1}$, which
+      is why thresholds here are always reported together with $\epsilon$.
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Noise axes are resource-specific</h2>
+    <p>
+      Phase diffusion averages $U(\phi)=e^{-i\phi \hat n}$ over $\phi \sim N(0,\sigma^2)$,
+      which has the closed form
+    </p>
+    <div class="eq">$$\rho_{mn} \;\longrightarrow\; \rho_{mn}\,e^{-\sigma^2 (m-n)^2/2}$$</div>
+    <p>
+      Diagonal elements are multiplied by $e^0=1$, so a Fock state is a fixed point:
+      <strong>phase diffusion cannot reduce a Fock state's Wigner negativity at any
+      $\sigma$</strong>, while it removes the interference fringes a cat state depends on.
+      Which noise axis threatens a resource depends on the resource.
+    </p>
+    <p>
+      This channel also commutes exactly with pure loss, since loss Kraus operators
+      preserve the Fock-index offset $m-n$ and phase diffusion depends on nothing else.
+      A layered circuit built from these two alone collapses to a single
+      $(\eta^D,\ \sigma\sqrt{D})$ channel, so depth is only an independent axis once a
+      non-commuting element — a Kerr or cubic-phase gate, or mode mixing — sits between
+      layers. The circuit layer reports which regime a given configuration is in.
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Method</h2>
+    <div class="cards">
+      <div class="card">
+        <h4>Two backends</h4>
+        <p>A pure-NumPy reference backend written for transparency, and Piquasso 8.0.1 for
+        production. Each cross-checks the other; conventions are pinned numerically rather
+        than read from documentation.</p>
+      </div>
+      <div class="card">
+        <h4>Closed forms first</h4>
+        <p>Pure loss, Fock and coherent Wigner functions, the lossy-photon negativity
+        integral and the phase-diffusion average all have analytic references used as
+        tests.</p>
+      </div>
+      <div class="card">
+        <h4>Convergence enforced</h4>
+        <p>Every headline result carries a cutoff-convergence check, grid diagnostics and a
+        stated resolution floor. Truncation guards raise rather than returning plausible
+        output.</p>
+      </div>
+      <div class="card">
+        <h4>Bounded scope</h4>
+        <p>Fock dimension grows combinatorially with mode count, so this is deliberately a
+        1–4 mode study rather than a general multimode simulator.</p>
+      </div>
+    </div>
+<pre><code>pip install -e ".[sim]"
+pytest tests/ -q
+python experiments/00_validation/run_validation.py
+python experiments/01_loss_threshold/run.py</code></pre>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Programme</h2>
+    <ol class="roadmap">
+      <li class="done">Validate against analytic loss, Gaussian limits and cutoff convergence</li>
+      <li class="done">Piquasso backend, cross-validated against the reference</li>
+      <li class="done">Non-Gaussian resource decay under pure loss <span class="tag">η*</span></li>
+      <li>Depth sweep and collapse depth <span class="tag">D*</span></li>
+      <li>Collapse maps over $(D,\eta)$ and $(D,\eta,\bar n_{\rm th})$</li>
+      <li>Resource-strength sweeps <span class="tag">γ*, ξ*</span></li>
+      <li>Resource placement at fixed depth <span class="tag">k*</span></li>
+      <li>Optimized resource-matched Gaussian baselines</li>
+      <li>Operational task scores: state preparation, phase estimation</li>
+      <li>Robustness-optimized circuit design, then multimode scaling</li>
+    </ol>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Citation</h2>
+    <pre><code>@software{anderson_ngphotonic,
+  author = {Anderson, J. D.},
+  title  = {Noise-Limited Non-Gaussian Photonic Circuits},
+  year   = {2026},
+  url    = {https://github.com/jeorgexyz/noise-limited-non-gaussian-photonic-circuits}
+}</code></pre>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    Updated September 2026 · <a href="https://github.com/jeorgexyz/noise-limited-non-gaussian-photonic-circuits">Repository</a>
+  </div>
+</footer>
+
+<script>
+function toggleTheme(){
+  var r=document.documentElement;
+  var dark=getComputedStyle(r).getPropertyValue('--bg').trim()==='#0e1116';
+  r.setAttribute('data-theme', dark?'light':'dark');
+  try{localStorage.setItem('theme', dark?'light':'dark');}catch(e){}
+}
+try{
+  var saved=localStorage.getItem('theme');
+  if(saved) document.documentElement.setAttribute('data-theme',saved);
+}catch(e){}
+</script>
+</body>
+</html>

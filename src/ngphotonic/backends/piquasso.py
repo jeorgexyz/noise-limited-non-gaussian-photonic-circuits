@@ -4,9 +4,9 @@ The production backend. Where :mod:`ngphotonic.backends.reference` is written to
 obviously correct, this one is written to be usable for sweeps; the validation suite
 holds the two against each other on every circuit both can express.
 
-Note on the module name: this file is ``ngphotonic.backends.piquasso`` and it imports
-the third-party ``piquasso``. Python 3 uses absolute imports, so there is no shadowing,
-but the naming follows RESEARCH_PLAN.md rather than inviting confusion on purpose.
+Module naming: this file is ``ngphotonic.backends.piquasso`` and imports the
+third-party ``piquasso``. Python 3 uses absolute imports, so there is no shadowing. The
+name follows the layout in RESEARCH_PLAN.md.
 
 Conventions pinned against Piquasso 8.0.1
 -----------------------------------------
@@ -127,9 +127,8 @@ def loss(eta: float, mode: int = 0, mean_thermal_excitation: float = 0.0):
     ``tan(theta)**(2k)`` internally, and as ``eta -> 0`` the angle approaches ``pi/2``,
     so that term overflows and the density matrix comes back as NaN. The failure is
     cutoff-dependent -- at ``eta = 0`` it appears from cutoff 12, at ``eta = 1e-12``
-    by cutoff 30, while ``eta >= 1e-6`` was clean at every cutoff tested -- which makes
-    it exactly the kind of thing that would slip through a coarse sweep and poison a
-    few grid points.
+    by cutoff 30, while ``eta >= 1e-6`` was clean at every cutoff tested. A coarse sweep
+    can therefore pass while a finer one returns NaN at a few grid points.
 
     The reference backend handles the whole closed interval including ``eta = 0``
     exactly, so total loss should be routed there.
@@ -200,9 +199,8 @@ def run(
     state = simulator.execute(program).state
     density_matrix = np.asarray(state.density_matrix, dtype=complex)
 
-    # Upstream numerical failures surface as NaN/inf rather than as exceptions, and a
-    # NaN that reaches a sweep is worse than a crash: it propagates silently into an
-    # aggregate. Fail here instead.
+    # Upstream numerical failures surface as NaN/inf rather than as exceptions. Raise
+    # here so they cannot propagate into a sweep aggregate.
     if not np.all(np.isfinite(density_matrix)):
         raise FloatingPointError(
             f"Piquasso returned a non-finite density matrix at cutoff {cutoff}. This "

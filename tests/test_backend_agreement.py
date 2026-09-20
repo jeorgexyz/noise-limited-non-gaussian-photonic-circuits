@@ -1,15 +1,16 @@
 """Cross-validation of the Piquasso backend against the reference backend.
 
-Two backends are kept so each can catch the other. That has already paid for itself in
-both directions: the comparison showed the *reference* squeezing implementation was the
-weaker one (it exponentiated a truncated generator; it now uses the exact even-Fock
-series), and it surfaced an Attenuator overflow in Piquasso 8.0.1 as ``eta -> 0``.
+Two backends are maintained so that each provides an independent check on the other.
+The comparison has identified issues on both sides: the reference squeezing
+implementation was measured as less accurate (it exponentiated a truncated generator and
+now uses the exact even-Fock series), and an Attenuator overflow was found in Piquasso
+8.0.1 as ``eta -> 0``.
 
-One caveat runs through this module and is asserted rather than assumed: **agreement
-between two backends is only evidence when they compute differently.** Where both
-exponentiate the same truncated operator -- as both do for the cubic phase gate -- they
-make the same error and agree to machine precision while both being wrong. Those cases
-are validated by cutoff convergence instead.
+One condition is asserted throughout this module: **agreement between two backends is
+evidence only when they compute differently.** Where both exponentiate the same truncated
+operator, as both do for the cubic phase gate, they incur the same error and agree to
+machine precision while both deviating from the converged result. Those cases are
+validated by cutoff convergence instead.
 """
 
 from __future__ import annotations
@@ -87,8 +88,8 @@ def test_loss_agrees_on_higher_fock_states(eta: float, n: int) -> None:
 @pytest.mark.parametrize("r, phi", [(0.3, 0.0), (0.5, 0.0), (0.4, 0.9), (0.7, 2.1)])
 def test_squeezing_agrees(r: float, phi: float) -> None:
     """Independent: the reference uses the closed-form even-Fock series, Piquasso its
-    own internal construction. This comparison is what showed the reference's previous
-    ``expm``-based squeezing to be 200x less accurate at cutoff 12."""
+    own internal construction. This comparison measured the reference's previous
+    ``expm``-based squeezing as 200x less accurate at cutoff 12."""
     simulated = pqb.run([pqb.vacuum(), pqb.squeezing(r, phi)], cutoff=60)
     np.testing.assert_allclose(simulated, ref.to_dm(ref.squeezed_ket(r, phi, 60)), atol=1e-8)
 
@@ -125,8 +126,8 @@ def test_cubic_phase_agreement_is_correlated_not_independent(gamma: float) -> No
 
     At gamma = 0.3 and cutoff 20 the two agree to ~1e-17 while each differs from the
     cutoff-converged answer by ~1e-04, and those two deviations are equal to every
-    digit. Pinned because it is a standing trap: "our two backends agree" is not
-    evidence of correctness unless the backends compute differently.
+    digit. Asserted here because backend agreement is not evidence of correctness unless
+    the backends compute differently.
     """
     small = 20
     simulated = pqb.run([pqb.vacuum(), pqb.cubic_phase(gamma)], cutoff=small)
@@ -172,9 +173,8 @@ def test_cubic_phase_converges_with_cutoff(gamma: float) -> None:
 def test_attenuator_refuses_transmissivity_that_overflows(eta: float) -> None:
     """Piquasso 8.0.1 returns NaN as eta -> 0; the backend refuses instead.
 
-    Cutoff-dependent upstream (NaN at eta = 0 from cutoff 12, at eta = 1e-12 by cutoff
-    30), which is what makes it dangerous: a coarse sweep can pass while a finer one
-    silently poisons a few points.
+    Cutoff-dependent upstream: NaN at eta = 0 from cutoff 12, and at eta = 1e-12 by
+    cutoff 30, so a coarse sweep can pass while a finer one returns NaN at some points.
     """
     with pytest.raises(ValueError, match="overflows"):
         pqb.loss(eta)
@@ -188,10 +188,10 @@ def test_reference_backend_handles_total_loss_that_piquasso_cannot() -> None:
 
 
 def test_non_finite_output_is_rejected() -> None:
-    """A NaN reaching a sweep is worse than a crash, so `run` fails loudly.
+    """`run` raises on non-finite output rather than returning it.
 
-    Constructed by going around the `loss` guard and handing Piquasso the raw
-    Attenuator that overflows.
+    Constructed by bypassing the `loss` guard and passing Piquasso the raw Attenuator
+    that overflows.
     """
     import piquasso as raw_pq
 

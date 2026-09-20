@@ -14,8 +14,8 @@ Two independent implementations are provided on purpose:
 
     It carries one sharp caveat: it displaces by the *full grid extent*, so it needs a
     far larger cutoff than the state itself does. A truncated ``D(alpha)`` stops being
-    unitary once ``|alpha|^2`` approaches the cutoff, and the method then returns
-    confident nonsense -- smooth, plausible, and wrong.
+    unitary once ``|alpha|^2`` approaches the cutoff, and the method then returns a
+    smooth but inaccurate result.
 
     Accuracy is governed by ``ratio = cutoff / |alpha|^2_max``, and is insensitive to
     how that ratio is reached. Measured worst-case disagreement with the Laguerre path
@@ -27,10 +27,9 @@ Two independent implementations are provided on purpose:
     So ``cutoff >= 10 |alpha|^2_max`` for a trustworthy cross-check, and for a square
     grid ``|alpha|^2_max = limit^2``. The guard below warns below ratio 8.
 
-The validation suite asserts the two agree. That cross-check is the point: a Wigner
-routine that is quietly wrong by a factor or a conjugate will still produce
-plausible-looking negativity plots, which is precisely the failure mode this project
-exists to avoid.
+The validation suite asserts that the two agree. A Wigner routine carrying an incorrect
+factor or conjugate still produces plausible-looking negativity plots, so an independent
+implementation is used as a check.
 
 Convention
 ----------
