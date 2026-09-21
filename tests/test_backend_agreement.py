@@ -16,6 +16,7 @@ validated by cutoff convergence instead.
 from __future__ import annotations
 
 import warnings
+from itertools import pairwise
 
 import numpy as np
 import pytest
@@ -164,7 +165,8 @@ def test_cubic_phase_converges_with_cutoff(gamma: float) -> None:
     """The only meaningful check for cubic phase: convergence, not cross-agreement.
 
     Required cutoff grows with gamma. At gamma = 0.3, cutoff 20 gives ~1e-04 while
-    cutoff 60 reaches ~1e-13.
+    cutoff 60 reaches ~1e-13. At smaller gamma, roundoff can dominate before the
+    last cutoff, so strict improvement is required only above the numerical floor.
     """
     converged = ref.apply_unitary(ref.vacuum_dm(260), ref.cubic_phase_unitary(gamma, 260))
 
@@ -173,7 +175,14 @@ def test_cubic_phase_converges_with_cutoff(gamma: float) -> None:
         simulated = pqb.run([pqb.vacuum(), pqb.cubic_phase(gamma)], cutoff=cutoff)
         errors.append(np.abs(simulated[:20, :20] - converged[:20, :20]).max())
 
-    assert np.all(np.diff(errors) < 0), f"not monotone: {errors}"
+    # Dense matrix exponentials can plateau or fluctuate at roundoff, depending on
+    # SciPy/BLAS. CI reached the same 1.07e-14 error at cutoffs 40 and 60. Keep
+    # requiring strict improvement above a floor 100x below the accuracy gate.
+    roundoff_floor = 1e-12
+    assert all(
+        current < previous or max(previous, current) <= roundoff_floor
+        for previous, current in pairwise(errors)
+    ), f"not converging above the {roundoff_floor:g} numerical floor: {errors}"
     assert errors[-1] < 1e-10
 
 
